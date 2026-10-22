@@ -1,0 +1,4 @@
+scenario,ambient_baseline_c,production_baseline_kw,fovra_energy_kwh,thermostat_energy_kwh,fovra_minutes_outside,thermostat_minutes_outside,fovra_model_one_step_mae_c
+Normal,20,3,148.75,149.0,0,0,0.0
+Production surge,20,3,158.75,158.0,0,0,0.0
+Heater degradation,20,3,194.0,196.0,0,0,0.1595
