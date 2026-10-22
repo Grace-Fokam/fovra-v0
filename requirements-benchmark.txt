@@ -1,0 +1,11 @@
+# Numerical environment used for the committed comparison (Python 3.12.14).
+# Use requirements.txt for normal Python 3.10+ installs and CI.
+-r requirements.txt
+numpy==2.3.5
+pandas==2.2.3
+scipy==1.17.0
+scikit-learn==1.8.0
+joblib==1.5.3
+threadpoolctl==3.6.0
+streamlit==1.66.0
+pytest==9.1.1

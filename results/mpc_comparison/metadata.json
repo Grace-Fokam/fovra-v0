@@ -1,0 +1,76 @@
+{
+  "generated_at_utc": "2026-10-22T04:44:02.042775+00:00",
+  "python": "3.12.14",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "processor": "x86_64",
+  "versions": {
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "scipy": "1.17.0",
+    "scikit-learn": "1.8.0",
+    "joblib": "1.5.3",
+    "threadpoolctl": "3.6.0",
+    "streamlit": "1.66.0",
+    "pytest": "9.1.1"
+  },
+  "source_sha256": {
+    "controllers.py": "c2c6683a315d22578452df611e855b3d7a7209bf9ffc19527fae1e91a6244cc8",
+    "evaluation.py": "2b217c4e18ae49ddef6aef3087c2617b8eb2e349602dcf5bd2bc1eeda53546de",
+    "simulator.py": "7a551dfa4b73e1363c79a14c3e60a25bf48f7ba9b245040d4fc01760fd5d2039",
+    "train_model.py": "c3f2d569ab12140272d57229740e812f71c0cc2cc7faca9081b39922e81c760e",
+    "benchmark_mpc.py": "be5853d21d62ce7b89e229f9d77924aa085698ccdb5eee7237220cb24c451d51"
+  },
+  "seeds": [
+    20261020,
+    20261021,
+    20261022
+  ],
+  "profiles": {
+    "default": [
+      20.0,
+      3.0
+    ],
+    "cold_high": [
+      10.0,
+      6.0
+    ],
+    "warm_low": [
+      35.0,
+      1.0
+    ]
+  },
+  "scenarios": [
+    "Normal",
+    "Production surge",
+    "Heater degradation"
+  ],
+  "repeats": 3,
+  "controllers": [
+    "Fovra",
+    "Physics MPC",
+    "Thermostat",
+    "PI controller"
+  ],
+  "native_thread_limit": 1,
+  "warmup_decisions_per_controller_per_seed": 5,
+  "timing_scope": "perf_counter_ns around choose only; excludes training, diagnostics, simulation and UI",
+  "training": [
+    {
+      "seed": 20261020,
+      "heldout_mae_c": 2.441033486455524e-15,
+      "training_and_validation_seconds": 0.01548484098748304
+    },
+    {
+      "seed": 20261021,
+      "heldout_mae_c": 2.0753306480732664e-15,
+      "training_and_validation_seconds": 0.011547757996595465
+    },
+    {
+      "seed": 20261022,
+      "heldout_mae_c": 4.067834032580227e-15,
+      "training_and_validation_seconds": 0.010359644002164714
+    }
+  ],
+  "interpretation": "Seeds resample noiseless nominal training data, not independent plants or noisy days. Repeats measure runtime variability, not statistical evidence of generalization."
+}
