@@ -32,7 +32,7 @@ def test_default_page_renders():
 
 
 @pytest.mark.parametrize("scenario", ["Normal", "Production surge", "Heater degradation"])
-@pytest.mark.parametrize("baseline", ["Thermostat", "PI controller"])
+@pytest.mark.parametrize("baseline", ["Thermostat", "PI controller", "Physics MPC"])
 def test_controls_rerun_simulation(scenario, baseline):
     at = AppTest.from_file(APP, default_timeout=120).run()
     at.slider[0].set_value(15)      # surrounding temperature
@@ -46,3 +46,11 @@ def test_controls_rerun_simulation(scenario, baseline):
     _, _, fovra, base = compare(SimulationConfig(15.0, 4.5, scenario, baseline), model)
     assert _metric(at, "Fovra electricity") == f"{fovra['energy_kwh']:.1f} kWh"
     assert _metric(at, f"{baseline} electricity") == f"{base['energy_kwh']:.1f} kWh"
+    table = at.dataframe[0].value.set_index("Metric")
+    assert table.loc["Temperature RMSE from 60°C (°C)", baseline] == f"{base['target_rmse_c']:.3f}"
+    assert table.loc["Heater power adjustments", baseline] == str(base["heater_adjustments"])
+    assert float(table.loc["Mean decision computation (ms)", baseline]) >= 0
+    records = at.dataframe[1].value
+    assert records["baseline_type"].eq(baseline).all()
+    if baseline == "Physics MPC":
+        assert records["baseline_predicted_next_temperature_c"].notna().all()

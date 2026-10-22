@@ -23,7 +23,7 @@ SCENARIOS = ("Normal", "Production surge", "Heater degradation")
 
 @dataclass(frozen=True)
 class Conditions:
-    """Conditions visible to each controller at a simulation step."""
+    """Plant conditions; only ambient and demand are exposed to controllers."""
 
     ambient_c: float
     process_kw: float

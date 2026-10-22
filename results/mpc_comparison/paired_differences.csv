@@ -1,0 +1,28 @@
+seed,profile,scenario,action_mismatches,max_temperature_gap_c,delta_energy_kwh,delta_target_rmse_c,delta_temperature_std_c,delta_minutes_outside,delta_max_violation_c,delta_violation_degree_minutes,delta_heater_adjustments,delta_heater_total_variation_kw
+20261020,default,Normal,0,0,0,0,0,0,0,0,0,0
+20261020,default,Production surge,0,0,0,0,0,0,0,0,0,0
+20261020,default,Heater degradation,0,0,0,0,0,0,0,0,0,0
+20261020,cold_high,Normal,0,0,0,0,0,0,0,0,0,0
+20261020,cold_high,Production surge,0,0,0,0,0,0,0,0,0,0
+20261020,cold_high,Heater degradation,0,0,0,0,0,0,0,0,0,0
+20261020,warm_low,Normal,0,0,0,0,0,0,0,0,0,0
+20261020,warm_low,Production surge,0,0,0,0,0,0,0,0,0,0
+20261020,warm_low,Heater degradation,0,0,0,0,0,0,0,0,0,0
+20261021,default,Normal,0,0,0,0,0,0,0,0,0,0
+20261021,default,Production surge,0,0,0,0,0,0,0,0,0,0
+20261021,default,Heater degradation,0,0,0,0,0,0,0,0,0,0
+20261021,cold_high,Normal,0,0,0,0,0,0,0,0,0,0
+20261021,cold_high,Production surge,0,0,0,0,0,0,0,0,0,0
+20261021,cold_high,Heater degradation,0,0,0,0,0,0,0,0,0,0
+20261021,warm_low,Normal,0,0,0,0,0,0,0,0,0,0
+20261021,warm_low,Production surge,0,0,0,0,0,0,0,0,0,0
+20261021,warm_low,Heater degradation,0,0,0,0,0,0,0,0,0,0
+20261022,default,Normal,0,0,0,0,0,0,0,0,0,0
+20261022,default,Production surge,0,0,0,0,0,0,0,0,0,0
+20261022,default,Heater degradation,0,0,0,0,0,0,0,0,0,0
+20261022,cold_high,Normal,0,0,0,0,0,0,0,0,0,0
+20261022,cold_high,Production surge,0,0,0,0,0,0,0,0,0,0
+20261022,cold_high,Heater degradation,0,0,0,0,0,0,0,0,0,0
+20261022,warm_low,Normal,0,0,0,0,0,0,0,0,0,0
+20261022,warm_low,Production surge,0,0,0,0,0,0,0,0,0,0
+20261022,warm_low,Heater degradation,0,0,0,0,0,0,0,0,0,0
