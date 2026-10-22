@@ -1,5 +1,6 @@
 """Fovra v0 dashboard. Run with: streamlit run app.py"""
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 
@@ -118,22 +119,43 @@ if fovra_metrics["minutes_outside"] > 0 or baseline_metrics["minutes_outside"] >
     )
 
 st.markdown("#### Tank temperature")
-st.line_chart(
-    pd.DataFrame(
-        {
-            "Hour": fovra["time_h"],
-            "Fovra": fovra["temperature_c"],
-            cfg.baseline: baseline_df["temperature_c"],
-            "Low limit": MIN_SAFE_TEMP_C,
-            "High limit": MAX_SAFE_TEMP_C,
-        }
-    ),
-    x="Hour",
-    y=["Fovra", cfg.baseline, "Low limit", "High limit"],
-    x_label="Hour",
-    y_label="°C",
-    height=330,
+temps = pd.DataFrame(
+    {
+        "Hour": fovra["time_h"],
+        "Fovra": fovra["temperature_c"],
+        cfg.baseline: baseline_df["temperature_c"],
+    }
+).melt("Hour", var_name="Controller", value_name="Temperature")
+# Zoom the axis to the data and the allowed range, instead of starting at 0,
+# so small swings are visible.
+y_min = min(MIN_SAFE_TEMP_C, temps["Temperature"].min()) - 0.5
+y_max = max(MAX_SAFE_TEMP_C, temps["Temperature"].max()) + 0.5
+y_scale = alt.Scale(domain=[y_min, y_max], zero=False)
+allowed_range = (
+    alt.Chart(pd.DataFrame({"low": [MIN_SAFE_TEMP_C], "high": [MAX_SAFE_TEMP_C]}))
+    .mark_rect(color="#2F6FD0", opacity=0.08)
+    .encode(y=alt.Y("low:Q", scale=y_scale), y2="high:Q")
 )
+lines = (
+    alt.Chart(temps)
+    .mark_line(strokeWidth=2)
+    .encode(
+        x=alt.X("Hour:Q", title="Hour", scale=alt.Scale(domain=[0, 24])),
+        y=alt.Y("Temperature:Q", title="°C", scale=y_scale),
+        color=alt.Color(
+            "Controller:N",
+            scale=alt.Scale(domain=["Fovra", cfg.baseline], range=["#2F6FD0", "#9A9893"]),
+            legend=alt.Legend(title=None, orient="bottom"),
+        ),
+        tooltip=[
+            alt.Tooltip("Controller:N"),
+            alt.Tooltip("Hour:Q", format=".2f"),
+            alt.Tooltip("Temperature:Q", title="°C", format=".2f"),
+        ],
+    )
+)
+st.altair_chart(alt.layer(allowed_range, lines).properties(height=330))
+st.caption("The shaded band is the 58–62°C range. The axis is zoomed in so small changes show up.")
 
 left, right = st.columns(2)
 with left:
