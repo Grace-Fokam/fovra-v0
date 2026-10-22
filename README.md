@@ -84,3 +84,11 @@ The full comparison, with every number and how it was measured, is in [docs/mpc-
 ## License
 
 MIT
+
+## Adaptive control experiment
+
+A separate [adaptation experiment](docs/adaptation-results.md) compares rolling
+learned dynamics with conventional online physical-parameter identification and
+both fixed MPC baselines on unseen equipment and feasible efficiency changes.
+Run `python benchmark_adaptation.py` to reproduce all trajectories and metrics.
+This experiment leaves the original benchmark and dashboard unchanged.
