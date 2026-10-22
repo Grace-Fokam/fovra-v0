@@ -242,23 +242,38 @@ with st.expander("How the model works"):
         "picks the one that saves the most energy while staying in range, and "
         "applies its first step."
     )
+    def show_error(value):
+        return "under 0.001°C" if value < 0.0005 else f"{value:.3f}°C"
+
     q1, q2 = st.columns(2)
-    q1.metric("Error on test data", f"{heldout_mae:.5f}°C")
-    q2.metric("Error in this run", f"{fovra_metrics['one_step_prediction_mae_c']:.3f}°C")
-    st.caption(
-        "The error is close to zero because the simulator is a simple equation the "
-        "model can learn exactly. Real equipment is messier. In the heater degradation "
-        "scenario, the model goes wrong on purpose."
+    q1.metric("Average error on test data", show_error(heldout_mae))
+    q2.metric("Average error in this run", show_error(fovra_metrics["one_step_prediction_mae_c"]))
+
+    errors = pd.DataFrame(
+        {"Hour": fovra["time_h"], "Error": (fovra["temperature_c"] - fovra["predicted_next_c"]).abs()}
     )
-    st.line_chart(
-        pd.DataFrame(
-            {
-                "Hour": fovra["time_h"],
-                "Predicted": fovra["predicted_next_c"],
-                "Actual": fovra["temperature_c"],
-            }
-        ),
-        x="Hour", y=["Predicted", "Actual"], y_label="°C", height=260,
+    st.altair_chart(
+        alt.Chart(errors)
+        .mark_area(color="#2F6FD0", opacity=0.25, line={"color": "#2F6FD0", "strokeWidth": 2})
+        .encode(
+            x=alt.X("Hour:Q", title="Hour", scale=alt.Scale(domain=[0, 24])),
+            y=alt.Y(
+                "Error:Q",
+                title="Prediction error (°C)",
+                scale=alt.Scale(domain=[0, max(0.05, float(errors["Error"].max()) * 1.15)]),
+            ),
+            tooltip=[
+                alt.Tooltip("Hour:Q", format=".2f"),
+                alt.Tooltip("Error:Q", title="Error (°C)", format=".3f"),
+            ],
+        )
+        .properties(height=240)
+    )
+    st.caption(
+        "How far off each 5-minute prediction was. It stays at zero because the "
+        "simulator is a simple equation the model can learn exactly. In Heater "
+        "degradation it jumps at hour 10, because the model isn't told the heater "
+        "got weaker. Real equipment is messier."
     )
 
 B = cfg.baseline
