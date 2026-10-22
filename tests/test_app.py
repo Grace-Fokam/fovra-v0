@@ -50,8 +50,8 @@ def test_controls_rerun_simulation(scenario, baseline):
     assert table.loc["Typical miss from 60°C (°C)", baseline] == f"{base['target_rmse_c']:.3f}"
     assert table.loc["Heater changes", baseline] == str(base["heater_adjustments"])
     more = at.dataframe[1].value.set_index("Metric")
-    assert float(more.loc["Average decision time (ms)", baseline]) >= 0
+    assert float(more.loc["Time to decide, average (ms)", baseline]) >= 0
     records = at.dataframe[2].value
-    assert records["baseline_type"].eq(baseline).all()
+    assert f"{baseline} temp (°C)" in records.columns
     if baseline == "Physics MPC":
-        assert records["baseline_predicted_next_temperature_c"].notna().all()
+        assert records[f"{baseline} predicted temp (°C)"].notna().all()
