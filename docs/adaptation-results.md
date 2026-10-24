@@ -134,3 +134,19 @@ Investor-safe description: **“Fovra now demonstrates causal online model updat
 on unseen simulated thermal systems. Adaptation improves predictions and target
 tracking, while a conventional adaptive physical model remains competitive.
 Energy savings and an ML-specific generalization advantage remain unproven.”**
+
+
+## Interactive dashboard
+
+Run `python -m streamlit run app.py` and select **Adaptation experiment** in
+**Dashboard view**. This mode reads the committed 72-record `summary.csv` only.
+Equipment, change condition, seeds, and controllers filter matched cases.
+Tables and the metric chart show equal-weight per-controller means, with raw
+selected records and a CSV download available below. Hours 10–24 prediction
+metrics are distinct from full-day tracking, electricity, and violations.
+The same time window is used for unchanged cases.
+
+The **Original simulation** mode retains its fixed-model controls and cached
+on-demand simulations. Adaptation browsing does not execute simulations.
+Generate trajectories offline with the benchmark CLI or retrieve CI artifacts.
+No trajectory simulation is launched from the dashboard.

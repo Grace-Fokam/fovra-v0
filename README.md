@@ -31,7 +31,7 @@ python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-The dashboard opens at `http://localhost:8501`. Pick a room temperature, a production demand, a scenario, and a controller to compare against, then click Run.
+The dashboard opens at `http://localhost:8501`. Choose **Original simulation** in Dashboard view. Pick a room temperature, a production demand, a scenario, and a controller to compare against, then click Run.
 
 Other things you can run:
 
@@ -39,6 +39,13 @@ Other things you can run:
 - `python benchmark_mpc.py --output results/mpc_comparison` reruns the full Fovra vs. Physics MPC comparison
 - `python benchmark_adaptation.py --output results/adaptation` reruns the separate adaptation experiment
 - `python -m pytest -q` runs the tests
+
+## Dashboard modes
+
+- **Original simulation** runs the existing fixed-model comparison with room temperature, demand, scenario, and baseline controls. Results are simulated on demand and cached.
+- **Adaptation experiment** reads `results/adaptation/summary.csv`. Filter three equipment configurations, degraded or unchanged equipment, operating-condition seeds, and four controllers. It displays equal-weight matched-case means, a selectable metric chart, per-case records, and a CSV download. Tracking error, both on-policy and common-probe prediction error, electricity, and temperature violations are included. Empty selections show guidance.
+
+The adaptation view never launches the benchmark or modifies recorded outputs. Trajectories are available through the offline benchmark CLI and CI artifacts, rather than through interactive execution. Full-day metrics and hours 10–24 prediction metrics are labeled separately. Conventional adaptive physics remains competitive. These synthetic linear, noiseless systems do not demonstrate real-world energy savings or an ML-specific advantage.
 
 ## Original benchmark scenarios
 
@@ -106,8 +113,9 @@ Tracking error and electricity cover the full day. Post-change prediction error 
 
 Both adaptive controllers use 0.889 kWh/day more than the fixed controllers, about 0.55%. All four remain within the temperature band in these cases, so this does not establish a safety advantage.
 
-These are three synthetic, linear, noiseless plants with repeated demand seeds. The results support online model adaptation, but do not establish an advantage unique to machine learning, real-world energy savings, or industrial validation. The original simulator, dashboard, and 27-case benchmark remain unchanged. The dashboard continues to use fixed models. See the [full protocol, metrics, and limitations](docs/adaptation-results.md) and [per-case results](results/adaptation/summary.csv).
+These are three synthetic, linear, noiseless plants with repeated demand seeds. The results support online model adaptation, but do not establish an advantage unique to machine learning, real-world energy savings, or industrial validation. The original simulator and 27-case benchmark remain unchanged. The **Original simulation** dashboard mode continues to use fixed models. The separate **Adaptation experiment** mode explores the committed adaptation results. See the [full protocol, metrics, and limitations](docs/adaptation-results.md) and [per-case results](results/adaptation/summary.csv).
 
 ## License
 
 MIT
+
