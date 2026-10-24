@@ -1,7 +1,9 @@
 [theme]
 base = "light"
-primaryColor = "#2563EB"
+primaryColor = "#2F6FD0"
 backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F5F7FA"
-textColor = "#111827"
-font = "sans serif"
+secondaryBackgroundColor = "#F6F5F2"
+textColor = "#1F1F1D"
+font = "Poppins:https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+headingFont = "Lora:https://fonts.googleapis.com/css2?family=Lora:wght@500;600&display=swap"
+baseRadius = "medium"
