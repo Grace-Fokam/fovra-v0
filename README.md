@@ -2,17 +2,17 @@
 
 [![tests](https://github.com/Grace-Fokam/fovra-v0/actions/workflows/tests.yml/badge.svg)](https://github.com/Grace-Fokam/fovra-v0/actions/workflows/tests.yml)
 
-Fovra v0 is a first experiment. Can a small machine learning model learn how a physical system behaves, and then use that to control it?
+Fovra v0 explores whether a small machine learning model can learn how a physical system behaves and use that model to control it. It includes an original fixed-model benchmark and a separate online adaptation experiment.
 
-The test system is a simulated hot water tank. A heater has to keep the water between 58 and 62°C while production pulls heat out. Fovra learns how the tank responds, looks 20 minutes ahead, and picks heater settings that stay in range without wasting energy.
+The test system is a simulated hot water tank. A heater has to keep the water between 58 and 62°C while production pulls heat out. Fovra learns how the tank responds, looks 20 minutes ahead, and picks heater settings that balance temperature tracking, electricity use, and changes in power. Temperature limits use soft penalties, not guaranteed safety constraints.
 
 It's all a simulation with made-up but reasonable numbers. It isn't real equipment, and it doesn't prove energy savings.
 
 ![How Fovra works](docs/fovra_loop.png)
 
-## What I compare it against
+## Original benchmark and dashboard
 
-Each controller gets the exact same simulated day.
+In the original benchmark and dashboard, each controller gets the same simulated day. The learned and physics MPC models remain fixed throughout each run.
 
 - **Thermostat.** Heater on below 59°C, off above 61°C.
 - **PI controller.** A standard feedback controller used in industry.
@@ -37,23 +37,24 @@ Other things you can run:
 
 - `python run_example.py` saves the thermostat comparisons as CSVs in `examples/`
 - `python benchmark_mpc.py --output results/mpc_comparison` reruns the full Fovra vs. Physics MPC comparison
+- `python benchmark_adaptation.py --output results/adaptation` reruns the separate adaptation experiment
 - `python -m pytest -q` runs the tests
 
-## Scenarios
+## Original benchmark scenarios
 
 - **Normal.** Demand and room temperature drift a little through the day.
 - **Production surge.** From hour 10 to 14, production needs 2.5 kW more, with no warning.
 - **Heater degradation.** From hour 10, the heater only delivers 65% of its power. No controller is told.
 
-## What I found
+## Original benchmark findings
 
 **Planning ahead helps.** In a cold room with high demand and a surge, Fovra stayed in range. The thermostat dropped below 58°C for 50 minutes. Fovra changed the heater setting far more often, though (151 times vs. 25).
 
 ![Fovra during a production surge](docs/fovra_stress_test.png)
 
-**The learning doesn't help yet.** Fovra and Physics MPC made exactly the same choices in all 27 cases I tested. That makes sense: the simulator is a simple equation, so the model just learns that equation. To show that learning adds something, the tank needs behavior a simple equation can't capture.
+**Fixed learned and physics MPC match.** Fovra and Physics MPC made exactly the same choices in all 27 cases I tested. That makes sense: the simulator is a simple equation, so the model just learns that equation. This benchmark does not establish an advantage from learning the dynamics.
 
-**Neither model notices when the heater changes.** After the heater degrades, both make the same wrong predictions and never correct them. Fixing that is the next step.
+**The original fixed models become stale.** After the heater degrades, both keep making incorrect predictions because neither updates its model. The separate adaptation experiment below tests online updates under a different, feasible degradation protocol.
 
 ![Prediction error after the heater degrades](docs/fovra_model_goes_stale.png)
 
@@ -71,24 +72,42 @@ The full comparison, with every number and how it was measured, is in [docs/mpc-
 - `run_example.py`: the thermostat comparisons, without the browser
 - `benchmark_mpc.py`: the Fovra vs. Physics MPC comparison
 - `results/mpc_comparison/`: saved results from that comparison
+- `adaptive_mpc.py`: rolling learned regression and bounded physical-parameter identification
+- `benchmark_adaptation.py`: the matched four-controller adaptation experiment
+- `results/adaptation/`: per-case adaptation metrics, paired comparisons, and provenance
 - `tests/`: tests for the simulation, the planners, the benchmark, and the dashboard
 
 ## Next
 
 - Messier physics: sensor noise, delays, wear, and uneven heating
-- Stronger baselines: a well-tuned PID, and a physics model that updates itself
-- A model that notices when it's wrong and adapts
+- Stronger feedback baselines: a well-tuned PID
+- Test adaptation across noise levels, nonlinear drift, window sizes, and regularization
 - A second system, like a pump
 - Testing on an outside benchmark like [BOPTEST](https://ibpsa.github.io/project1-boptest/)
+
+## Online adaptation experiment
+
+**Updating stale models improves prediction and temperature tracking in this simulation. Conventional adaptive physics remains competitive, and energy use increases slightly.**
+
+The [adaptation experiment](docs/adaptation-results.md) compares fixed learned MPC, fixed physics MPC, adaptive learned MPC, and adaptive physics MPC across 18 matched cases: three equipment configurations (including two unseen during nominal training), two change conditions, and three seeds. Each run lasts 24 hours. In nine degraded cases, heater efficiency unexpectedly falls by 25% at hour 10. Controllers are not told the change time or actual equipment parameters.
+
+Both adaptive controllers fit the latest 48 completed transitions using only their own observed history. They share the original MPC planner. Predictions are scored before each update, and independent common prediction probes are used only for evaluation.
+
+Means across the nine degraded cases:
+
+| Controller | Temperature tracking RMSE (°C) | Electricity (kWh/day) | Safety violations (min/day) |
+|---|---:|---:|---:|
+| Fixed learned MPC | 0.222 | 161.611 | 0 |
+| Fixed physics MPC | 0.222 | 161.611 | 0 |
+| Adaptive learned MPC | 0.069 | 162.500 | 0 |
+| Adaptive physics MPC | 0.073 | 162.500 | 0 |
+
+Tracking error and electricity cover the full day. Post-change prediction error on each controller's actual operating trajectory falls from 0.195642°C/step for fixed learned MPC to 0.009812 for adaptive learned MPC and 0.016483 for adaptive physics MPC. Adaptive physics performs better on common prediction probes and recovers its model faster under the documented diagnostic threshold. Neither adaptive method is uniformly better.
+
+Both adaptive controllers use 0.889 kWh/day more than the fixed controllers, about 0.55%. All four remain within the temperature band in these cases, so this does not establish a safety advantage.
+
+These are three synthetic, linear, noiseless plants with repeated demand seeds. The results support online model adaptation, but do not establish an advantage unique to machine learning, real-world energy savings, or industrial validation. The original simulator, dashboard, and 27-case benchmark remain unchanged. The dashboard continues to use fixed models. See the [full protocol, metrics, and limitations](docs/adaptation-results.md) and [per-case results](results/adaptation/summary.csv).
 
 ## License
 
 MIT
-
-## Adaptive control experiment
-
-A separate [adaptation experiment](docs/adaptation-results.md) compares rolling
-learned dynamics with conventional online physical-parameter identification and
-both fixed MPC baselines on unseen equipment and feasible efficiency changes.
-Run `python benchmark_adaptation.py` to reproduce all trajectories and metrics.
-This experiment leaves the original benchmark and dashboard unchanged.
