@@ -77,8 +77,8 @@ fovra, baseline_df, fovra_metrics, baseline_metrics = get_results(
 
 st.title("Fovra")
 st.write(
-    "A simulated hot water tank, controlled two ways: by Fovra, which learns how "
-    "the tank behaves and plans ahead, and by the controller you pick in the sidebar."
+    "A simulated hot water tank. Fovra learns how it behaves and plans ahead. "
+    "Pick something to compare it against in the sidebar."
 )
 
 scenario_notes = {
@@ -94,9 +94,8 @@ st.caption(
 )
 if cfg.baseline == "Physics MPC":
     st.caption(
-        "Physics MPC plans the same way as Fovra, but uses the tank's equation "
-        "instead of a learned model. If the two lines overlap, that's expected: "
-        "here the model learns that same equation."
+        "Physics MPC plans just like Fovra, but uses the tank's equation instead "
+        "of learning it. If the lines overlap, that's expected."
     )
 
 savings = (
@@ -114,8 +113,8 @@ d.metric("Fovra out of range", f"{fovra_metrics['minutes_outside']} min")
 
 if fovra_metrics["minutes_outside"] > 0 or baseline_metrics["minutes_outside"] > 0:
     st.warning(
-        "At least one controller left the 58–62°C range. "
-        "Using less energy doesn't count for much if the water is out of range."
+        "At least one controller let the water go out of range. "
+        "Saving energy doesn't count for much when that happens."
     )
 
 st.markdown("#### Tank temperature")
@@ -194,23 +193,23 @@ with st.expander("More numbers"):
     st.dataframe(
         results_table(
             [
-                ("Temperature spread (°C)", "temperature_std_c", 3),
+                ("How much the temperature varied (°C)", "temperature_std_c", 3),
                 ("Furthest out of range (°C)", "max_violation_c", 3),
-                ("Total out of range (°C·min)", "violation_degree_minutes", 2),
+                ("How far × how long out of range (°C·min)", "violation_degree_minutes", 2),
                 ("Total heater movement (kW)", "heater_total_variation_kw", 1),
-                ("Average decision time (ms)", "decision_mean_ms", 3),
-                ("Slow decision time, 95th percentile (ms)", "decision_p95_ms", 3),
-                ("Total decision time (ms)", "decision_total_ms", 2),
+                ("Time to decide, average (ms)", "decision_mean_ms", 3),
+                ("Time to decide, slowest 5% (ms)", "decision_p95_ms", 3),
+                ("Time to decide, whole day (ms)", "decision_total_ms", 2),
             ]
         ),
         hide_index=True,
         width="stretch",
     )
     st.caption(
-        "Typical miss is the RMSE from 60°C. Decision time only counts the controller "
-        "choosing, not the simulation or charts, and cached runs keep their first "
-        "timing. Run benchmark_mpc.py for fresh timings. The 58–62°C range is a "
-        "penalty in both planners, not a hard guarantee."
+        "Typical miss is the RMSE from 60°C. Time to decide only counts choosing a "
+        "heater setting. Repeat runs reuse the first timing, so use benchmark_mpc.py "
+        "for fresh numbers. Both planners try hard to stay in range, but it isn't "
+        "guaranteed."
     )
 
 with st.expander("How the model works"):
@@ -222,7 +221,7 @@ with st.expander("How the model works"):
         "applies its first step."
     )
     q1, q2 = st.columns(2)
-    q1.metric("Test error", f"{heldout_mae:.5f}°C")
+    q1.metric("Error on test data", f"{heldout_mae:.5f}°C")
     q2.metric("Error in this run", f"{fovra_metrics['one_step_prediction_mae_c']:.3f}°C")
     st.caption(
         "The error is close to zero because the simulator is a simple equation the "
@@ -240,12 +239,33 @@ with st.expander("How the model works"):
         x="Hour", y=["Predicted", "Actual"], y_label="°C", height=260,
     )
 
-merged = merge_for_download(fovra, baseline_df, cfg.baseline)
-with st.expander("Raw data"):
+B = cfg.baseline
+merged = merge_for_download(fovra, baseline_df, B).drop(columns="baseline_type")
+merged = merged.rename(
+    columns={
+        "time_hours": "Hour",
+        "ambient_c": "Room (°C)",
+        "process_heat_demand_kw": "Production demand (kW)",
+        "actual_heater_efficiency": "Real heater efficiency",
+        "fovra_temperature_c": "Fovra temp (°C)",
+        "baseline_temperature_c": f"{B} temp (°C)",
+        "fovra_heater_kw": "Fovra heater (kW)",
+        "baseline_heater_kw": f"{B} heater (kW)",
+        "fovra_cumulative_kwh": "Fovra energy so far (kWh)",
+        "baseline_cumulative_kwh": f"{B} energy so far (kWh)",
+        "fovra_predicted_next_temperature_c": "Fovra predicted temp (°C)",
+        "baseline_predicted_next_temperature_c": f"{B} predicted temp (°C)",
+        "fovra_prediction_error_c": "Fovra prediction error (°C)",
+        "baseline_prediction_error_c": f"{B} prediction error (°C)",
+        "fovra_decision_ms": "Fovra time to decide (ms)",
+        "baseline_decision_ms": f"{B} time to decide (ms)",
+    }
+)
+with st.expander("Every 5-minute step"):
     st.dataframe(merged, width="stretch", hide_index=True)
 
 st.download_button(
-    "Download CSV",
+    "Download this run (CSV)",
     data=merged.to_csv(index=False).encode("utf-8"),
     file_name=f"fovra_{cfg.scenario.lower().replace(' ', '_')}.csv",
     mime="text/csv",
