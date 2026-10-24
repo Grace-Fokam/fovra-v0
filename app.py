@@ -6,6 +6,7 @@ Run locally with: streamlit run app.py
 import pandas as pd
 import streamlit as st
 
+from controllers import BASELINES
 from evaluation import SimulationConfig, compare, merge_for_download
 from simulator import MAX_SAFE_TEMP_C, MIN_SAFE_TEMP_C, SCENARIOS
 from train_model import train_world_model
@@ -67,8 +68,8 @@ with st.sidebar:
         )
         baseline = st.selectbox(
             "Compare Fovra against",
-            ["Thermostat", "PI controller"],
-            index=["Thermostat", "PI controller"].index(
+            BASELINES,
+            index=BASELINES.index(
                 st.session_state.submitted_conditions["baseline"]
             ),
         )
@@ -123,9 +124,17 @@ if cfg.scenario == "Production surge":
     st.caption("At hour 10–14, production demand increases by 2.5 kW. Neither controller receives advance notice.")
 elif cfg.scenario == "Heater degradation":
     st.caption("Starting at hour 10, only 65% of electric heater input reaches the water as heat. "
-               "The ML model is not retrained or told about this change.")
+               "Neither MPC is told about this change or updated to reflect it.")
 else:
     st.caption("Normal operating conditions include varying production demand and a small ambient-temperature cycle.")
+
+if cfg.baseline == "Physics MPC":
+    st.caption(
+        "Matched MPCs: same 625 plans, 20-minute horizon, objective and current observations. "
+        "Physics MPC uses the nominal heat-balance equation. Both hold current demand and "
+        "ambient temperature constant in their forecasts, and assume nominal efficiency. "
+        "Overlapping curves are expected when the learned model recovers that equation."
+    )
 
 st.subheader("Controller comparison · 24 hours")
 savings = (
@@ -201,10 +210,18 @@ st.markdown("#### Detailed outcomes")
 metric_rows = [
     ("Electricity consumption (kWh)", "energy_kwh", 2),
     ("Time outside 58–62°C (minutes)", "minutes_outside", 0),
+    ("Temperature RMSE from 60°C (°C)", "target_rmse_c", 3),
+    ("Temperature standard deviation (°C)", "temperature_std_c", 3),
     ("Worst deviation from 60°C (°C)", "worst_target_deviation_c", 2),
+    ("Maximum band violation (°C)", "max_violation_c", 3),
+    ("Integrated band violation (°C·min)", "violation_degree_minutes", 2),
     ("Minimum temperature (°C)", "min_temperature_c", 2),
     ("Maximum temperature (°C)", "max_temperature_c", 2),
     ("Heater power adjustments", "heater_adjustments", 0),
+    ("Total heater power variation (kW)", "heater_total_variation_kw", 1),
+    ("Mean decision computation (ms)", "decision_mean_ms", 3),
+    ("95th percentile decision computation (ms)", "decision_p95_ms", 3),
+    ("Total decision computation (ms)", "decision_total_ms", 2),
 ]
 comparison_table = pd.DataFrame(
     {
@@ -215,6 +232,12 @@ comparison_table = pd.DataFrame(
     }
 )
 st.dataframe(comparison_table, hide_index=True, width="stretch")
+st.caption(
+    "Timing measures controller decisions only, excluding training, plant simulation and charts. "
+    "Cached results retain timing from the original run. For repeated timing measurements, "
+    "run benchmark_mpc.py. Power adjustments exclude the initial command from the off state. "
+    "Temperature limits are soft penalties in both MPCs, not guaranteed hard constraints."
+)
 
 with st.expander("How the ML model works / prediction accuracy", expanded=False):
     st.write(
