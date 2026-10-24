@@ -38,7 +38,7 @@ def test_controls_rerun_simulation(scenario, baseline):
     at.slider[0].set_value(15)      # room temperature
     at.slider[1].set_value(4.5)     # production demand
     at.radio[0].set_value(scenario)
-    at.selectbox[0].set_value(baseline)
+    at.selectbox[1].set_value(baseline)
     at.button[0].click().run()      # "Run"
     assert not at.exception
 
@@ -55,3 +55,4 @@ def test_controls_rerun_simulation(scenario, baseline):
     assert f"{baseline} temp (°C)" in records.columns
     if baseline == "Physics MPC":
         assert records[f"{baseline} predicted temp (°C)"].notna().all()
+
