@@ -23,3 +23,8 @@ jobs:
         with:
           name: mpc-comparison-python-${{ matrix.python-version }}
           path: benchmark-results/
+      - run: python benchmark_adaptation.py --output adaptation-results
+      - uses: actions/upload-artifact@v4
+        with:
+          name: adaptation-python-${{ matrix.python-version }}
+          path: adaptation-results/

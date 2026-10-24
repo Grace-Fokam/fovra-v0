@@ -1,0 +1,58 @@
+{
+  "base_commit": "d28674c3ead95c63dc16b1cdc6c0a65568778c17",
+  "seeds": [
+    11,
+    22,
+    33
+  ],
+  "equipment": [
+    {
+      "name": "nominal",
+      "capacity": 1.0,
+      "loss": 0.08,
+      "efficiency": 1.0
+    },
+    {
+      "name": "unseen_small",
+      "capacity": 0.65,
+      "loss": 0.11,
+      "efficiency": 0.9
+    },
+    {
+      "name": "unseen_large",
+      "capacity": 1.6,
+      "loss": 0.05,
+      "efficiency": 0.85
+    }
+  ],
+  "change_step": 120,
+  "steps": 288,
+  "window": 48,
+  "ridge": 1e-06,
+  "python": "3.12.14",
+  "numpy": "2.3.5",
+  "pandas": "2.2.3",
+  "sklearn": "1.8.0",
+  "scipy": "1.17.0",
+  "source_sha256": {
+    "adaptive_mpc.py": "d878d3511ff9758dc13e458f03f45afe76ead5d548e26ec60f50481a8d3e322e",
+    "benchmark_adaptation.py": "3ca9e204a07a8b805ede5f89afd8f8164b3c45a10daab247b62761d1da287e73",
+    "controllers.py": "c2c6683a315d22578452df611e855b3d7a7209bf9ffc19527fae1e91a6244cc8",
+    "simulator.py": "7a551dfa4b73e1363c79a14c3e60a25bf48f7ba9b245040d4fc01760fd5d2039",
+    "train_model.py": "c3f2d569ab12140272d57229740e812f71c0cc2cc7faca9081b39922e81c760e"
+  },
+  "trajectory_sha256": "af9494f5362149859dd26eff8529a4b9b853cdd7b91f35bafda62a3279f4f481",
+  "protocol": {
+    "observations": [
+      "temperature",
+      "ambient",
+      "process demand",
+      "past applied power"
+    ],
+    "degradation_multiplier": 0.75,
+    "change_disclosed": false,
+    "model_recovery_threshold_c": 0.02,
+    "recovery_consecutive_steps": 12,
+    "sensor_noise": false
+  }
+}
