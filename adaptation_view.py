@@ -1,10 +1,12 @@
 """Read-only explorer for the committed adaptation benchmark."""
+import logging
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import streamlit as st
 
+LOGGER = logging.getLogger(__name__)
 RESULTS = Path(__file__).resolve().parent / "results" / "adaptation" / "summary.csv"
 CONTROLLERS = {
     "fixed_learned": "Fixed learned MPC",
@@ -62,8 +64,9 @@ def render_adaptation():
     st.info("Precomputed experiments · results/adaptation/summary.csv · 72 records, 18 matched cases. Changing filters does not run a simulation.")
     try:
         frame = load_results()
-    except (OSError, ValueError, TypeError) as exc:
-        st.error(f"Cannot load recorded adaptation results: {exc}")
+    except (OSError, ValueError, TypeError):
+        LOGGER.exception("Unable to read or validate recorded adaptation results")
+        st.error("Recorded adaptation results are unavailable. Please contact the maintainer.")
         return
     equipment = st.multiselect("Equipment configurations", ["nominal", "unseen_small", "unseen_large"], default=["nominal", "unseen_small", "unseen_large"])
     condition = st.radio("Equipment condition", ["Degraded", "Unchanged"], horizontal=True)

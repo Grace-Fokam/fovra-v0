@@ -18,6 +18,10 @@ In the original benchmark and dashboard, each controller gets the same simulated
 - **PI controller.** A standard feedback controller used in industry.
 - **Physics MPC.** Plans exactly like Fovra, but uses the tank's equation instead of a learned model. This one answers whether the learning helps, or only the planning.
 
+## Shareable dashboard deployment
+
+The dashboard can be hosted directly from this repository on **Streamlit Community Cloud**. See the [deployment and live-verification guide](docs/deploy-streamlit.md) for the exact GitHub repository, `main` branch, `app.py` entrypoint, Python version, and checks for both modes. Add the live URL here only after the hosted app has been verified.
+
 ## Run it
 
 You'll need Python 3.10 or newer.

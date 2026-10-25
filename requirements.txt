@@ -1,4 +1,5 @@
 streamlit>=1.49,<2
+altair>=5,<6
 numpy>=1.26,<3
 pandas>=2.0,<4
 scikit-learn>=1.4,<2
