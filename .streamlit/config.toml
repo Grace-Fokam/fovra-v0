@@ -1,3 +1,7 @@
+[client]
+# Do not display raw uncaught exception details to visitors.
+showErrorDetails = "none"
+
 [theme]
 base = "light"
 primaryColor = "#2F6FD0"
