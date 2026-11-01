@@ -2,9 +2,9 @@
 
 [![tests](https://github.com/Grace-Fokam/fovra-v0/actions/workflows/tests.yml/badge.svg)](https://github.com/Grace-Fokam/fovra-v0/actions/workflows/tests.yml)
 
-Fovra v0 explores whether a small machine learning model can learn how a physical system behaves and use that model to control it. It includes an original fixed-model benchmark and a separate online adaptation experiment.
+Fovra v0 explores whether small machine learning models can help understand and improve physical systems. It includes two hot-water tank control experiments and a new cooling exploration for a simulated data center. Cooling is an exploratory application, not a settled company focus.
 
-The test system is a simulated hot water tank. A heater has to keep the water between 58 and 62°C while production pulls heat out. Fovra learns how the tank responds, looks 20 minutes ahead, and picks heater settings that balance temperature tracking, electricity use, and changes in power. Temperature limits use soft penalties, not guaranteed safety constraints.
+The original test system is a simulated hot water tank. A heater has to keep the water between 58 and 62°C while production pulls heat out. Fovra learns how the tank responds, looks 20 minutes ahead, and picks heater settings that balance temperature tracking, electricity use, and changes in power. Temperature limits use soft penalties, not guaranteed safety constraints.
 
 It's all a simulation with made-up but reasonable numbers. It isn't real equipment, and it doesn't prove energy savings.
 
@@ -20,7 +20,7 @@ In the original benchmark and dashboard, each controller gets the same simulated
 
 ## Shareable dashboard deployment
 
-The dashboard can be hosted directly from this repository on **Streamlit Community Cloud**. See the [deployment and live-verification guide](docs/deploy-streamlit.md) for the exact GitHub repository, `main` branch, `app.py` entrypoint, Python version, and checks for both modes. Add the live URL here only after the hosted app has been verified.
+The dashboard can be hosted directly from this repository on **Streamlit Community Cloud**. See the [deployment and live-verification guide](docs/deploy-streamlit.md) for the exact GitHub repository, `main` branch, `app.py` entrypoint, Python version, and checks for all three modes. Add the live URL here only after the hosted app has been verified.
 
 ## Run it
 
@@ -42,10 +42,12 @@ Other things you can run:
 - `python run_example.py` saves the thermostat comparisons as CSVs in `examples/`
 - `python benchmark_mpc.py --output results/mpc_comparison` reruns the full Fovra vs. Physics MPC comparison
 - `python benchmark_adaptation.py --output results/adaptation` reruns the separate adaptation experiment
+- `python benchmark_cooling.py --output results/cooling` reruns the cooling grid and equal-budget AI/random search comparison
 - `python -m pytest -q` runs the tests
 
 ## Dashboard modes
 
+- **Cooling exploration** compares dry cooling and evaporative assist under matched IT load and synthetic weather. It reports cooling electricity, makeup and evaporated water, estimated cooling emissions, utility cost, and coolant-temperature violations. Optional AI screening is compared with random search using the same simulation budget. Every reported candidate is checked in the simulator. See [model assumptions and results](docs/cooling-experiment.md).
 - **Original simulation** runs the existing fixed-model comparison with room temperature, demand, scenario, and baseline controls. Results are simulated on demand and cached.
 - **Adaptation experiment** reads `results/adaptation/summary.csv`. Filter three equipment configurations, degraded or unchanged equipment, operating-condition seeds, and four controllers. It displays equal-weight matched-case means, a selectable metric chart, per-case records, and a CSV download. Tracking error, both on-policy and common-probe prediction error, electricity, and temperature violations are included. Empty selections show guidance.
 
@@ -90,6 +92,8 @@ The full comparison, with every number and how it was measured, is in [docs/mpc-
 
 ## Next
 
+- Validate cooling assumptions against measured equipment or a detailed external simulator
+- Test cooling under noise, delays, failures, and unseen conditions
 - Messier physics: sensor noise, delays, wear, and uneven heating
 - Stronger feedback baselines: a well-tuned PID
 - Test adaptation across noise levels, nonlinear drift, window sizes, and regularization

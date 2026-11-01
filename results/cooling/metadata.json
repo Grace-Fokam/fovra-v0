@@ -1,0 +1,73 @@
+{
+  "scope": "Synthetic cooling exploration. No equipment validation or demonstrated ML advantage.",
+  "cases": [
+    {
+      "climate": "Cool",
+      "load_kw": 80.0,
+      "surge": false,
+      "carbon_kg_per_kwh": 0.4,
+      "electricity_per_kwh": 0.12,
+      "water_per_m3": 2.0
+    },
+    {
+      "climate": "Cool",
+      "load_kw": 80.0,
+      "surge": true,
+      "carbon_kg_per_kwh": 0.4,
+      "electricity_per_kwh": 0.12,
+      "water_per_m3": 2.0
+    },
+    {
+      "climate": "Hot and dry",
+      "load_kw": 80.0,
+      "surge": false,
+      "carbon_kg_per_kwh": 0.4,
+      "electricity_per_kwh": 0.12,
+      "water_per_m3": 2.0
+    },
+    {
+      "climate": "Hot and dry",
+      "load_kw": 80.0,
+      "surge": true,
+      "carbon_kg_per_kwh": 0.4,
+      "electricity_per_kwh": 0.12,
+      "water_per_m3": 2.0
+    },
+    {
+      "climate": "Hot and humid",
+      "load_kw": 80.0,
+      "surge": false,
+      "carbon_kg_per_kwh": 0.4,
+      "electricity_per_kwh": 0.12,
+      "water_per_m3": 2.0
+    },
+    {
+      "climate": "Hot and humid",
+      "load_kw": 80.0,
+      "surge": true,
+      "carbon_kg_per_kwh": 0.4,
+      "electricity_per_kwh": 0.12,
+      "water_per_m3": 2.0
+    }
+  ],
+  "seeds": [
+    11,
+    22,
+    33
+  ],
+  "budget": 12,
+  "water_budget_l": 4000.0,
+  "candidate_count": 35,
+  "initial_shared_samples": 6,
+  "objective": "Minimize cooling electricity subject to thermal checks and makeup-water budget.",
+  "oracle": "Full 35-design grid, hidden from both search methods. Precomputed simulations are replayed one chosen result at a time. No speedup claim.",
+  "python": "3.12.14",
+  "numpy": "2.3.5",
+  "pandas": "2.2.3",
+  "scikit_learn": "1.8.0",
+  "source_sha256": {
+    "cooling.py": "6c68d4b3f3f2bc562487e06e5a64fb868220b1cfff70335dc676dba453aa0314",
+    "cooling_search.py": "0fe57f1155897fb68820563af5c4799b6b2b4540f3a0271461805407b3f2cc25",
+    "benchmark_cooling.py": "8035ce24fe3df7ebacc1a3376a4ad2465f9cbcfd739ae0a679521de85ef37f6c"
+  }
+}

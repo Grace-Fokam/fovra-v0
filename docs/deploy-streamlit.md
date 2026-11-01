@@ -23,7 +23,7 @@ The repository owner must authorize Streamlit Community Cloud to access the GitH
 5. Click **Deploy**. Review the application and the deployment logs for import errors, incompatible packages, and startup failures.
 6. In the app's sharing settings, confirm it is public if you want investors and design partners to open it without logging in. Test this in a signed-out browser.
 
-## Verify both modes
+## Verify all three modes
 
 Test the actual hosted app, not just the GitHub Actions tests.
 
@@ -33,7 +33,9 @@ Test the actual hosted app, not just the GitHub Actions tests.
 - Browsing the adaptation view must only read the committed `results/adaptation/summary.csv` file. It must **not** run `benchmark_adaptation.py` or rerun the 18 matched cases.
 - Check app logs for runtime errors and unexpected dependency issues. Confirm the live URL opens anonymously without exposing application secrets, credentials, or internal tracebacks.
 
-GitHub Actions already tests the two dashboard modes using Streamlit's headless testing runner. A green workflow is useful but does not replace the checks above on the hosted app.
+- **Cooling exploration:** Switch to the cooling view. At default hot-and-dry conditions, the dry option should fail the thermal checks and evaporative assist should pass. Choose **Cool** and confirm zero makeup water for both options. Run **AI comparison**, test the CSV downloads, then change the IT load. Previous search results should be hidden until rerun. Return to each tank view and check navigation.
+
+GitHub Actions tests all three dashboard modes using Streamlit's headless testing runner. A green workflow is useful but does not replace the checks above on the hosted app.
 
 ## After the live URL is verified
 

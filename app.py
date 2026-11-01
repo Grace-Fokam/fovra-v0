@@ -25,8 +25,11 @@ def get_results(ambient_c: float, process_kw: float, scenario: str, baseline: st
     return compare(SimulationConfig(ambient_c, process_kw, scenario, baseline), model)
 
 
-view = st.sidebar.selectbox("Dashboard view", ["Original simulation", "Adaptation experiment"], key="dashboard_view")
-if view == "Adaptation experiment":
+view = st.sidebar.selectbox("Dashboard view", ["Original simulation", "Adaptation experiment", "Cooling exploration"], key="dashboard_view")
+if view == "Cooling exploration":
+    from cooling_view import render_cooling
+    render_cooling()
+elif view == "Adaptation experiment":
     from adaptation_view import render_adaptation
     render_adaptation()
 else:
