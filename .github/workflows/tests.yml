@@ -47,3 +47,8 @@ jobs:
         with:
           name: adaptation-python-${{ matrix.python-version }}
           path: adaptation-results/
+      - run: python benchmark_sensor_robustness.py --output sensor-robustness-results
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sensor-robustness-python-${{ matrix.python-version }}
+          path: sensor-robustness-results/

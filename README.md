@@ -86,11 +86,13 @@ The full comparison, with every number and how it was measured, is in [docs/mpc-
 - `adaptive_mpc.py`: rolling learned regression and bounded physical-parameter identification
 - `benchmark_adaptation.py`: the matched four-controller adaptation experiment
 - `results/adaptation/`: per-case adaptation metrics, paired comparisons, and provenance
+- `benchmark_sensor_robustness.py`: separate sensor-noise and bias benchmark
+- `results/sensor_robustness/`: matched sensor-robustness metrics and provenance
 - `tests/`: tests for the simulation, the planners, the benchmark, and the dashboard
 
 ## Next
 
-- Messier physics: sensor noise, delays, wear, and uneven heating
+- Messier physics and observations: delays, wear, and uneven heating
 - Stronger feedback baselines: a well-tuned PID
 - Test adaptation across noise levels, nonlinear drift, window sizes, and regularization
 - A second system, like a pump
@@ -118,6 +120,16 @@ Tracking error and electricity cover the full day. Post-change prediction error 
 Both adaptive controllers use 0.889 kWh/day more than the fixed controllers, about 0.55%. All four remain within the temperature band in these cases, so this does not establish a safety advantage.
 
 These are three synthetic, linear, noiseless plants with repeated demand seeds. The results support online model adaptation, but do not establish an advantage unique to machine learning, real-world energy savings, or industrial validation. The original simulator and 27-case benchmark remain unchanged. The **Original simulation** dashboard mode continues to use fixed models. The separate **Adaptation experiment** mode explores the committed adaptation results. See the [full protocol, metrics, and limitations](docs/adaptation-results.md) and [per-case results](results/adaptation/summary.csv).
+
+## Sensor robustness experiment
+
+**The current adaptive physics controller handles measurement noise better than the current adaptive learned controller in this synthetic suite. Neither reliably recovers the underlying model under random sensor noise.**
+
+Run `python benchmark_sensor_robustness.py`. This separate experiment adds Gaussian temperature noise (standard deviations 0.1, 0.5, and 1.0°C), constant ±1°C sensor bias, and combined noise/bias conditions. The physical dynamics and original experiments are unchanged. All four controllers receive their own noisy observations under the same protocol. Only the evaluator sees true temperatures.
+
+Across 18 matched cases per sensor condition, 0.5°C noise produces mean tracking RMSE of 0.238°C for adaptive physics versus 0.423°C for adaptive learned MPC. At 1.0°C noise, the corresponding errors are 0.378°C and 1.743°C. Adaptive physics has no sampled temperature-band violations across the 144 cases, while the learned adaptive controller has violations in 48. These are simulated outcomes, not a safety guarantee. Neither adaptive method reaches the common clean-probe model-recovery threshold in any degraded case with random sensor noise, including 0.1°C noise.
+
+See [the protocol, results, and limitations](docs/sensor-robustness-results.md). This supports a robustness advantage for the present constrained physics estimator over the present unconstrained regression estimator, not an ML-specific advantage or industrial validation. The Streamlit adaptation explorer continues to display the original noiseless results.
 
 ## License
 
