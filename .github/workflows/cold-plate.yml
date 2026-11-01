@@ -1,0 +1,37 @@
+name: cold-plate research
+
+on:
+  push:
+    paths:
+      - 'cold_plate*.py'
+      - 'benchmark_cold_plate.py'
+      - 'tests/test_cold_plate.py'
+      - 'requirements*.txt'
+      - '.github/workflows/cold-plate.yml'
+  pull_request:
+    paths:
+      - 'cold_plate*.py'
+      - 'benchmark_cold_plate.py'
+      - 'tests/test_cold_plate.py'
+      - 'requirements*.txt'
+      - '.github/workflows/cold-plate.yml'
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python -m pytest tests/test_cold_plate.py -q
+      - run: python benchmark_cold_plate.py --output cold-plate-results
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cold-plate-python-${{ matrix.python-version }}
+          path: cold-plate-results/

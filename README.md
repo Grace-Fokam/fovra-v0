@@ -43,7 +43,12 @@ Other things you can run:
 - `python benchmark_mpc.py --output results/mpc_comparison` reruns the full Fovra vs. Physics MPC comparison
 - `python benchmark_adaptation.py --output results/adaptation` reruns the separate adaptation experiment
 - `python benchmark_cooling.py --output results/cooling` reruns the cooling grid and equal-budget AI/random search comparison
+- `python benchmark_cold_plate.py --output results/cold_plate` runs the separate physical channel-geometry research experiment
 - `python -m pytest -q` runs the tests
+
+## Cold-plate geometry research
+
+A separate command-line prototype searches physical channel width, depth, spacing, base thickness, conductivity, and flow. It uses a reduced-order laminar thermal/hydraulic model and compares a random-forest surrogate with random search under identical simulator-call budgets. A fixed-flow case isolates geometry changes. See [assumptions, equations, reproducible results, and required CFD/bench validation](docs/cold-plate.md). This is an unvalidated design-screening experiment, not demonstrated cooling hardware.
 
 ## Dashboard modes
 
