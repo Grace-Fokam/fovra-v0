@@ -1,6 +1,7 @@
 name: tests
 
 on:
+  workflow_dispatch:
   push:
   pull_request:
 
@@ -52,3 +53,8 @@ jobs:
         with:
           name: cooling-python-${{ matrix.python-version }}
           path: cooling-results/
+      - run: python benchmark_sensor_robustness.py --output sensor-robustness-results
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sensor-robustness-python-${{ matrix.python-version }}
+          path: sensor-robustness-results/

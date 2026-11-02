@@ -2,7 +2,7 @@
 
 [![tests](https://github.com/Grace-Fokam/fovra-v0/actions/workflows/tests.yml/badge.svg)](https://github.com/Grace-Fokam/fovra-v0/actions/workflows/tests.yml)
 
-Fovra v0 explores whether small machine learning models can help understand and improve physical systems. It includes two hot-water tank control experiments and a new cooling exploration for a simulated data center. Cooling is an exploratory application, not a settled company focus.
+Fovra v0 explores whether small machine learning models can help understand and improve physical systems. It includes fixed-model and adaptive hot-water tank control, a separate tank sensor-robustness benchmark, simulated data-center cooling exploration, and unvalidated cold-plate geometry research. Cooling is an exploratory application, not a settled company focus.
 
 The original test system is a simulated hot water tank. A heater has to keep the water between 58 and 62°C while production pulls heat out. Fovra learns how the tank responds, looks 20 minutes ahead, and picks heater settings that balance temperature tracking, electricity use, and changes in power. Temperature limits use soft penalties, not guaranteed safety constraints.
 
@@ -42,9 +42,12 @@ Other things you can run:
 - `python run_example.py` saves the thermostat comparisons as CSVs in `examples/`
 - `python benchmark_mpc.py --output results/mpc_comparison` reruns the full Fovra vs. Physics MPC comparison
 - `python benchmark_adaptation.py --output results/adaptation` reruns the separate adaptation experiment
+- `python benchmark_sensor_robustness.py --output results/sensor_robustness` reruns the separate noise and bias benchmark
 - `python benchmark_cooling.py --output results/cooling` reruns the cooling grid and equal-budget AI/random search comparison
 - `python benchmark_cold_plate.py --output results/cold_plate` runs the separate physical channel-geometry research experiment
 - `python -m pytest -q` runs the tests
+
+For integration checks that preserve recorded outputs, see [the combined validation guide](docs/integration-validation.md).
 
 ## Cold-plate geometry research
 
@@ -93,13 +96,15 @@ The full comparison, with every number and how it was measured, is in [docs/mpc-
 - `adaptive_mpc.py`: rolling learned regression and bounded physical-parameter identification
 - `benchmark_adaptation.py`: the matched four-controller adaptation experiment
 - `results/adaptation/`: per-case adaptation metrics, paired comparisons, and provenance
+- `benchmark_sensor_robustness.py`: separate sensor-noise and bias benchmark
+- `results/sensor_robustness/`: matched sensor-robustness metrics and provenance
 - `tests/`: tests for the simulation, the planners, the benchmark, and the dashboard
 
 ## Next
 
 - Validate cooling assumptions against measured equipment or a detailed external simulator
 - Test cooling under noise, delays, failures, and unseen conditions
-- Messier physics: sensor noise, delays, wear, and uneven heating
+- Messier physics and observations: delays, wear, and uneven heating
 - Stronger feedback baselines: a well-tuned PID
 - Test adaptation across noise levels, nonlinear drift, window sizes, and regularization
 - A second system, like a pump
@@ -127,6 +132,16 @@ Tracking error and electricity cover the full day. Post-change prediction error 
 Both adaptive controllers use 0.889 kWh/day more than the fixed controllers, about 0.55%. All four remain within the temperature band in these cases, so this does not establish a safety advantage.
 
 These are three synthetic, linear, noiseless plants with repeated demand seeds. The results support online model adaptation, but do not establish an advantage unique to machine learning, real-world energy savings, or industrial validation. The original simulator and 27-case benchmark remain unchanged. The **Original simulation** dashboard mode continues to use fixed models. The separate **Adaptation experiment** mode explores the committed adaptation results. See the [full protocol, metrics, and limitations](docs/adaptation-results.md) and [per-case results](results/adaptation/summary.csv).
+
+## Sensor robustness experiment
+
+**The current adaptive physics controller handles measurement noise better than the current adaptive learned controller in this synthetic suite. Neither reliably recovers the underlying model under random sensor noise.**
+
+Run `python benchmark_sensor_robustness.py`. This separate experiment adds Gaussian temperature noise (standard deviations 0.1, 0.5, and 1.0°C), constant ±1°C sensor bias, and combined noise/bias conditions. The physical dynamics and original experiments are unchanged. All four controllers receive their own noisy observations under the same protocol. Only the evaluator sees true temperatures.
+
+Across 18 matched cases per sensor condition, 0.5°C noise produces mean tracking RMSE of 0.238°C for adaptive physics versus 0.423°C for adaptive learned MPC. At 1.0°C noise, the corresponding errors are 0.378°C and 1.743°C. Adaptive physics has no sampled temperature-band violations across the 144 cases, while the learned adaptive controller has violations in 48. These are simulated outcomes, not a safety guarantee. Neither adaptive method reaches the common clean-probe model-recovery threshold in any degraded case with random sensor noise, including 0.1°C noise.
+
+See [the protocol, results, and limitations](docs/sensor-robustness-results.md). This supports a robustness advantage for the present constrained physics estimator over the present unconstrained regression estimator, not an ML-specific advantage or industrial validation. The Streamlit adaptation explorer continues to display the original noiseless results.
 
 ## License
 

@@ -1,11 +1,14 @@
 name: cold-plate research
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'cold_plate*.py'
       - 'benchmark_cold_plate.py'
       - 'tests/test_cold_plate.py'
+      - 'docs/cold-plate.md'
+      - 'docs/integration-validation.md'
       - 'requirements*.txt'
       - '.github/workflows/cold-plate.yml'
   pull_request:
@@ -13,6 +16,8 @@ on:
       - 'cold_plate*.py'
       - 'benchmark_cold_plate.py'
       - 'tests/test_cold_plate.py'
+      - 'docs/cold-plate.md'
+      - 'docs/integration-validation.md'
       - 'requirements*.txt'
       - '.github/workflows/cold-plate.yml'
 
