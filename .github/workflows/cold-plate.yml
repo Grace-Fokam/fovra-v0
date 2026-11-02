@@ -6,8 +6,12 @@ on:
     paths:
       - 'cold_plate*.py'
       - 'benchmark_cold_plate.py'
-      - 'tests/test_cold_plate.py'
+      - 'check_cold_plate_reproducibility.py'
+      - 'tests/test_cold_plate*.py'
+      - 'results/cold_plate/**'
+      - 'conftest.py'
       - 'docs/cold-plate.md'
+      - 'docs/cold-plate-reproducibility.md'
       - 'docs/integration-validation.md'
       - 'requirements*.txt'
       - '.github/workflows/cold-plate.yml'
@@ -15,8 +19,12 @@ on:
     paths:
       - 'cold_plate*.py'
       - 'benchmark_cold_plate.py'
-      - 'tests/test_cold_plate.py'
+      - 'check_cold_plate_reproducibility.py'
+      - 'tests/test_cold_plate*.py'
+      - 'results/cold_plate/**'
+      - 'conftest.py'
       - 'docs/cold-plate.md'
+      - 'docs/cold-plate-reproducibility.md'
       - 'docs/integration-validation.md'
       - 'requirements*.txt'
       - '.github/workflows/cold-plate.yml'
@@ -40,3 +48,52 @@ jobs:
         with:
           name: cold-plate-python-${{ matrix.python-version }}
           path: cold-plate-results/
+
+  pinned-reproducibility:
+    name: cold-plate pinned scientific replay (Python 3.12)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONHASHSEED: '0'
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          # Match the recorded Python patch release as well as scientific packages.
+          python-version: '3.12.14'
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-cold-plate.txt
+      - name: Create temporary replay directory
+        run: echo "REPLAY_DIR=$(mktemp -d "$RUNNER_TEMP/cold-plate-replay.XXXXXX")" >> "$GITHUB_ENV"
+      - name: Install recorded cold-plate environment
+        run: |
+          python -m pip install -r requirements-cold-plate.txt
+          python -m pip check
+          python -m pip freeze > "$REPLAY_DIR/packages.txt"
+          python --version > "$REPLAY_DIR/python.txt"
+      - name: Test cold-plate model and replay checker
+        run: python -m pytest tests/test_cold_plate.py tests/test_cold_plate_reproducibility.py -q
+      - name: Rerun full recorded benchmark
+        run: python benchmark_cold_plate.py --output "$REPLAY_DIR/generated" 2>&1 | tee "$REPLAY_DIR/benchmark.log"
+      - name: Compare all seven scientific outputs
+        run: |
+          python check_cold_plate_reproducibility.py --actual "$REPLAY_DIR/generated" | tee "$REPLAY_DIR/comparison.txt"
+      - name: Verify historical results were not modified
+        if: always()
+        run: git diff --exit-code -- results/
+      - name: Retain replay outputs and failure diagnostics
+        if: always() && env.REPLAY_DIR != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: cold-plate-pinned-reproducibility
+          path: ${{ env.REPLAY_DIR }}/
+          if-no-files-found: warn
