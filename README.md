@@ -2,13 +2,27 @@
 
 [![tests](https://github.com/Grace-Fokam/fovra-v0/actions/workflows/tests.yml/badge.svg)](https://github.com/Grace-Fokam/fovra-v0/actions/workflows/tests.yml)
 
-Fovra v0 explores whether small machine learning models can help understand and improve physical systems. It includes fixed-model and adaptive hot-water tank control, a separate tank sensor-robustness benchmark, simulated data-center cooling exploration, and unvalidated cold-plate geometry research. Cooling is an exploratory application, not a settled company focus.
+Fovra is exploring AI-assisted design of computer components, with computer cooling as an active research direction. This repository records early simulation research, including a cold-plate geometry search prototype and earlier control experiments. The precise component, customer requirements, and commercial product remain under consideration.
+
+All reported performance is simulated. The research does not yet demonstrate validated cooling hardware, hardware novelty, real-world energy savings, or a general advantage from AI.
+
+## Research overview
+
+| Research track | What is implemented | Evidence boundary |
+| --- | --- | --- |
+| **Current component-design research: cold plates** | A command-line prototype searches straight-channel dimensions, conductivity, and flow using a reduced-order thermal/hydraulic model and equal-budget surrogate versus random search. | An unvalidated coupon model. Requires thermal-engineering review, conjugate CFD, and bench measurements. It does not model a complete GPU package or establish manufacturing feasibility. See [cold-plate research](docs/cold-plate.md). |
+| **Supporting system-level exploration: data-center cooling** | A dashboard and benchmark compare dry cooling, evaporative assistance, equipment size, and operating settings. | Synthetic equipment and weather assumptions. This explores system configurations rather than new component geometry. AI screening matched random search seven times, improved once, and was worse once among nine feasible pairs. See [cooling exploration](docs/cooling-experiment.md). |
+| **Historical control experiments: hot-water tanks** | Fixed-model MPC, online adaptation, and a separate sensor-noise/bias benchmark. | Synthetic control testbeds, separate from component design. Adaptive physics remains competitive and outperforms the current learned estimator under measurement noise. These results do not validate cooling hardware. See [fixed-model](docs/mpc-comparison.md), [adaptation](docs/adaptation-results.md), and [sensor-robustness](docs/sensor-robustness-results.md) reports. |
+
+The dashboard has three modes: **Cooling exploration**, **Original simulation**, and **Adaptation experiment**. Cold-plate design and sensor robustness are separate command-line experiments. For environment-specific reproduction and commands that preserve recorded results, start with the [combined validation guide](docs/integration-validation.md). The recorded cold-plate outputs require a separate Python 3.12 environment with `requirements-cold-plate.txt` for byte-identical scientific results.
+
+## Historical control testbed
 
 The original test system is a simulated hot water tank. A heater has to keep the water between 58 and 62°C while production pulls heat out. Fovra learns how the tank responds, looks 20 minutes ahead, and picks heater settings that balance temperature tracking, electricity use, and changes in power. Temperature limits use soft penalties, not guaranteed safety constraints.
 
 It's all a simulation with made-up but reasonable numbers. It isn't real equipment, and it doesn't prove energy savings.
 
-![How Fovra works](docs/fovra_loop.png)
+![Historical tank-control loop](docs/fovra_loop.png)
 
 ## Original benchmark and dashboard
 
@@ -100,15 +114,23 @@ The full comparison, with every number and how it was measured, is in [docs/mpc-
 - `results/sensor_robustness/`: matched sensor-robustness metrics and provenance
 - `tests/`: tests for the simulation, the planners, the benchmark, and the dashboard
 
-## Next
+## Future work
 
-- Validate cooling assumptions against measured equipment or a detailed external simulator
-- Test cooling under noise, delays, failures, and unseen conditions
-- Messier physics and observations: delays, wear, and uneven heating
-- Stronger feedback baselines: a well-tuned PID
-- Test adaptation across noise levels, nonlinear drift, window sizes, and regularization
-- A second system, like a pump
-- Testing on an outside benchmark like [BOPTEST](https://ibpsa.github.io/project1-boptest/)
+These are research priorities, not a finalized product roadmap.
+
+### Computer-component design and cooling
+
+- Define a specific cooling-component use case with prospective collaborators and thermal engineers, including heat maps, package interfaces, inlet conditions, temperature and pressure limits, pump curves, and manufacturing constraints.
+- Review the cold-plate model, then validate a preregistered set of candidates with conjugate CFD, mesh and conservation checks, real headers/ports, temperature-dependent properties, and nonuniform heating. Follow the [cold-plate validation gates](docs/cold-plate.md#outputs-tests-and-next-research-gate).
+- After model review and CFD, fabricate reference and tradeoff candidates for calibrated thermal, flow, pressure, and pump-electrical measurements with uncertainty estimates.
+- Compare search methods on expensive evaluations with locked budgets, conventional optimization baselines, and held-out geometries and conditions. The present cheap coupon model does not establish a surrogate speedup.
+- For supporting system-level cooling work, replace assumed equipment curves with measured data or a detailed external simulator before testing noise, delays, failures, and unseen conditions.
+
+### Historical control research
+
+- Extend the existing sensor-noise/bias benchmark to estimator constraints, filtering, nonlinear drift, window sizes, and regularization.
+- Investigate delays, wear, uneven heating, and stronger feedback baselines such as a well-tuned PID.
+- Consider an external benchmark such as [BOPTEST](https://ibpsa.github.io/project1-boptest/) for control-method evaluation. This is a separate research track, not a commitment to a non-computer-hardware product.
 
 ## Online adaptation experiment
 
