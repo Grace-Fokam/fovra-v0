@@ -60,8 +60,15 @@ reproducibility targets. Historical result files remain historical evidence.
 `tests.yml` runs the complete suite, Streamlit health check, original MPC,
 adaptation, cooling, and sensor benchmarks on Python 3.10/3.12. The dedicated
 `cold-plate.yml` runs cold-plate tests and its full benchmark on the same matrix.
+It also has a separate Python 3.12.14 job installing
+`requirements-cold-plate.txt`, rerunning the full benchmark in runner temporary
+storage, and checking all seven scientific files against the committed outputs.
+This [pinned replay gate](cold-plate-reproducibility.md) reports exact file diffs
+and retains generated outputs, metadata, timing, and the comparison report even
+on comparison failure. Timing and environment metadata do not affect the verdict.
 Both support manual dispatch. Cold-plate code, dependency, workflow, and relevant
-documentation changes trigger the dedicated workflow. A green source-PR workflow
+documentation changes, as well as reference-output and replay-checker changes,
+trigger the dedicated workflow. A green source-PR workflow
 is not evidence that this combined branch has passed remote CI.
 
 ## Dashboard and research boundaries

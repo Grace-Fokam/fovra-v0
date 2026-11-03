@@ -13,10 +13,19 @@ python -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 python -m pytest -q
-python benchmark_cold_plate.py --output results/cold_plate
+validation_dir="$(mktemp -d)"
+python benchmark_cold_plate.py --output "$validation_dir/cold_plate"
 ```
 
 For the recorded numerical environment, use **Python 3.12** and `python -m pip install -r requirements-cold-plate.txt`. The default benchmark has four cases, six seeds, and a budget of 32 calls per method. A shorter smoke run is `python benchmark_cold_plate.py --output /tmp/cold-plate-smoke --seeds 11 --budget 12`. Timings vary by machine. Version changes can alter random-forest decisions. Metadata records source hashes, package versions, every candidate, and all case settings. Scientific CSVs exclude wall-clock measurements so their reproducibility can be checked separately.
+
+The dedicated [pinned scientific replay check](cold-plate-reproducibility.md)
+uses Python 3.12.14 and the recorded scientific dependencies to compare all seven
+scientific output files against `results/cold_plate/`. It runs alongside the
+existing Python 3.10/3.12 compatibility jobs. Use a temporary output directory,
+then `python check_cold_plate_reproducibility.py --actual "$validation_dir/cold_plate"`
+in the pinned environment. The check excludes `timings.csv` and `metadata.json`,
+reports file-specific diffs, and never updates the historical results.
 
 A single design can also be evaluated without running a search:
 
