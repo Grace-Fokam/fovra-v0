@@ -1,7 +1,6 @@
 # Combined research integration
 
-This integration combines PRs #10 (cooling), #11 (cold-plate geometry), and #9
-(sensor robustness). Passing code checks means these experiments coexist and run.
+PR [#12](https://github.com/Grace-Fokam/fovra-v0/pull/12) integrated cooling, cold-plate geometry, and sensor robustness into `main`. Cooling PR [#15](https://github.com/Grace-Fokam/fovra-v0/pull/15) superseded [#10](https://github.com/Grace-Fokam/fovra-v0/pull/10) at the same implementation commit, `6356c15d5243681626a1129a9209df339180d168`. Passing code checks means these experiments coexist and run.
 It does not validate industrial cooling equipment, establish novel hardware, or
 show a general advantage from AI.
 
@@ -14,7 +13,7 @@ show a general advantage from AI.
 | #11 | `51c9628e1e94b76cca337257b7e14e84fc0180d2` | #10 |
 | #9 | `e45d60398ab4b56edb8c02372fb76854604a25b3` | main |
 
-The tested local order is main → #10 → #11 → #9. #10 and #11 fast-forward
+The historical tested local order is main → #10 → #11 → #9. #10 and #11 fast-forward
 at these snapshots. Merging #9 then produces actual content conflicts in
 `.github/workflows/tests.yml` (the appended benchmark/upload blocks) and
 `README.md` (the Next list). Both benchmark blocks are retained with distinct
@@ -22,11 +21,7 @@ output directories and Python-version-specific artifact names. The README keeps
 all experiment sections, limitations, and findings. No experiment source code or
 recorded result is changed to resolve these conflicts.
 
-For separate upstream PR merges, merge #10 first, retarget #11 to main and
-recheck its diff, then merge #11 and the reconciled #9. #9 can also precede #11
-once its conflicts with #10 are resolved. Approval is required before merging
-anything into main. An integration PR is an alternative review unit, not an
-instruction to also merge the same changes again through every source PR.
+The table records the original validation snapshots. The research integration, pinned reproducibility check (#13), and README positioning update (#14) are already in `main`.
 
 ## Reproduce without overwriting recorded evidence
 
