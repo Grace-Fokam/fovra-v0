@@ -1,0 +1,37 @@
+case_id,climate,load_kw,surge,carbon_kg_per_kwh,electricity_per_kwh,water_per_m3,method,seed,simulations_observed,oracle_simulations,water_budget_l,found_feasible,best_design,best_cooling_kwh,best_makeup_l,oracle_cooling_kwh,gap_to_grid_kwh
+0,Cool,80.0,False,0.4,0.12,2.0,Random search,11,12,35,4000.0,True,Evaporative assist | size 2 | trigger 0.55,37.96958610766528,0.0,37.96958610766528,0.0
+0,Cool,80.0,False,0.4,0.12,2.0,AI screening,11,12,35,4000.0,True,Dry cooler | size 2 | trigger 1,37.96958610766528,0.0,37.96958610766528,0.0
+0,Cool,80.0,False,0.4,0.12,2.0,Random search,22,12,35,4000.0,True,Evaporative assist | size 2 | trigger 0.35,37.96958610766528,0.0,37.96958610766528,0.0
+0,Cool,80.0,False,0.4,0.12,2.0,AI screening,22,12,35,4000.0,True,Evaporative assist | size 2 | trigger 0.35,37.96958610766528,0.0,37.96958610766528,0.0
+0,Cool,80.0,False,0.4,0.12,2.0,Random search,33,12,35,4000.0,True,Evaporative assist | size 2 | trigger 0.35,37.96958610766528,0.0,37.96958610766528,0.0
+0,Cool,80.0,False,0.4,0.12,2.0,AI screening,33,12,35,4000.0,True,Evaporative assist | size 2 | trigger 0.35,37.96958610766528,0.0,37.96958610766528,0.0
+1,Cool,80.0,True,0.4,0.12,2.0,Random search,11,12,35,4000.0,True,Evaporative assist | size 2 | trigger 0.55,38.78225715422498,0.0,38.78225715422498,0.0
+1,Cool,80.0,True,0.4,0.12,2.0,AI screening,11,12,35,4000.0,True,Evaporative assist | size 2 | trigger 0.55,38.78225715422498,0.0,38.78225715422498,0.0
+1,Cool,80.0,True,0.4,0.12,2.0,Random search,22,12,35,4000.0,True,Evaporative assist | size 2 | trigger 0.35,39.21643989420291,510.98351329872025,38.78225715422498,0.43418273997792767
+1,Cool,80.0,True,0.4,0.12,2.0,AI screening,22,12,35,4000.0,True,Evaporative assist | size 2 | trigger 0.55,38.78225715422498,0.0,38.78225715422498,0.0
+1,Cool,80.0,True,0.4,0.12,2.0,Random search,33,12,35,4000.0,True,Evaporative assist | size 2 | trigger 1,38.78225715422498,0.0,38.78225715422498,0.0
+1,Cool,80.0,True,0.4,0.12,2.0,AI screening,33,12,35,4000.0,True,Dry cooler | size 2 | trigger 1,38.78225715422498,0.0,38.78225715422498,0.0
+2,Hot and dry,80.0,False,0.4,0.12,2.0,Random search,11,12,35,4000.0,True,Evaporative assist | size 2 | trigger 0.55,54.868561124856946,3854.117747007244,54.868561124856946,0.0
+2,Hot and dry,80.0,False,0.4,0.12,2.0,AI screening,11,12,35,4000.0,True,Evaporative assist | size 1.5 | trigger 0.35,62.077432535775934,3854.1176762615196,54.868561124856946,7.208871410918988
+2,Hot and dry,80.0,False,0.4,0.12,2.0,Random search,22,12,35,4000.0,True,Evaporative assist | size 2 | trigger 0.35,54.868561124856946,3854.117747007244,54.868561124856946,0.0
+2,Hot and dry,80.0,False,0.4,0.12,2.0,AI screening,22,12,35,4000.0,True,Evaporative assist | size 2 | trigger 0.35,54.868561124856946,3854.117747007244,54.868561124856946,0.0
+2,Hot and dry,80.0,False,0.4,0.12,2.0,Random search,33,12,35,4000.0,True,Evaporative assist | size 2 | trigger 0.35,54.868561124856946,3854.117747007244,54.868561124856946,0.0
+2,Hot and dry,80.0,False,0.4,0.12,2.0,AI screening,33,12,35,4000.0,True,Evaporative assist | size 2 | trigger 0.35,54.868561124856946,3854.117747007244,54.868561124856946,0.0
+3,Hot and dry,80.0,True,0.4,0.12,2.0,Random search,11,12,35,4000.0,False,,,,,
+3,Hot and dry,80.0,True,0.4,0.12,2.0,AI screening,11,12,35,4000.0,False,,,,,
+3,Hot and dry,80.0,True,0.4,0.12,2.0,Random search,22,12,35,4000.0,False,,,,,
+3,Hot and dry,80.0,True,0.4,0.12,2.0,AI screening,22,12,35,4000.0,False,,,,,
+3,Hot and dry,80.0,True,0.4,0.12,2.0,Random search,33,12,35,4000.0,False,,,,,
+3,Hot and dry,80.0,True,0.4,0.12,2.0,AI screening,33,12,35,4000.0,False,,,,,
+4,Hot and humid,80.0,False,0.4,0.12,2.0,Random search,11,12,35,4000.0,False,,,,,
+4,Hot and humid,80.0,False,0.4,0.12,2.0,AI screening,11,12,35,4000.0,False,,,,,
+4,Hot and humid,80.0,False,0.4,0.12,2.0,Random search,22,12,35,4000.0,False,,,,,
+4,Hot and humid,80.0,False,0.4,0.12,2.0,AI screening,22,12,35,4000.0,False,,,,,
+4,Hot and humid,80.0,False,0.4,0.12,2.0,Random search,33,12,35,4000.0,False,,,,,
+4,Hot and humid,80.0,False,0.4,0.12,2.0,AI screening,33,12,35,4000.0,False,,,,,
+5,Hot and humid,80.0,True,0.4,0.12,2.0,Random search,11,12,35,4000.0,False,,,,,
+5,Hot and humid,80.0,True,0.4,0.12,2.0,AI screening,11,12,35,4000.0,False,,,,,
+5,Hot and humid,80.0,True,0.4,0.12,2.0,Random search,22,12,35,4000.0,False,,,,,
+5,Hot and humid,80.0,True,0.4,0.12,2.0,AI screening,22,12,35,4000.0,False,,,,,
+5,Hot and humid,80.0,True,0.4,0.12,2.0,Random search,33,12,35,4000.0,False,,,,,
+5,Hot and humid,80.0,True,0.4,0.12,2.0,AI screening,33,12,35,4000.0,False,,,,,
