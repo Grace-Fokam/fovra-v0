@@ -137,4 +137,4 @@ def render_cooling():
         st.write("The fan follows a simple physics rule. AI is only used to screen settings in the optional search. It doesn't control a real data center or design hardware.")
         st.write("The loop starts at 32°C. To pass, it can't go over 35°C and can't end the day with more than 0.5 kWh of extra heat. Failing designs keep running at full load so overheating stays visible.")
         st.write("It leaves out chillers, chip temperatures, equipment failures, capital cost, embodied carbon, and water used to generate electricity. The wet model treats all rejected heat as evaporation. Validating it would need real equipment data.")
-        st.markdown("[Equations, assumptions, and benchmark instructions](https://github.com/Grace-Fokam/fovra-v0/blob/ce12821da8b12acd26e2963cbdfab2f8cd0a2e53/docs/cooling-experiment.md)")
+        st.markdown("[Equations, assumptions, and benchmark instructions](https://github.com/Grace-Fokam/fovra-v0/blob/main/docs/cooling-experiment.md)")
