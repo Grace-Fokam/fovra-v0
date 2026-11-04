@@ -1,13 +1,13 @@
-# Deploy Fovra v0 on Streamlit Community Cloud
+# Deploy on Streamlit Community Cloud
 
-The dashboard is a public research demonstration of **simulated data-center cooling**. It compares illustrative dry and evaporative cooling configurations, electricity use, makeup water, and modeled thermal limits. The equipment curves and weather are synthetic. This is not validated industrial equipment or demonstrated energy savings.
+The dashboard is a public demo of **simulated data-center cooling**. It compares illustrative dry and evaporative cooling setups on electricity, makeup water, and modeled temperature limits. The equipment curves and weather are synthetic, so it doesn't represent validated equipment or proven energy savings.
 
 ## Create the app
 
-The repository owner must authorize [Streamlit Community Cloud](https://share.streamlit.io/) to access the GitHub repository.
+First, connect [Streamlit Community Cloud](https://share.streamlit.io/) to the GitHub repo.
 
-1. Check your Streamlit workspace for an existing app connected to `Grace-Fokam/fovra-v0`. Verify its address rather than creating a duplicate.
-2. If none exists, select **Create app** and choose a repository-based deployment.
+1. Check your Streamlit workspace for an existing app linked to `Grace-Fokam/fovra-v0` before creating a new one.
+2. If there isn't one, click **Create app** and deploy from the repo.
 3. Use these settings:
 
    | Setting | Value |
@@ -17,25 +17,25 @@ The repository owner must authorize [Streamlit Community Cloud](https://share.st
    | Entry point | `app.py` |
    | Python | `3.12` |
    | Dependencies | Root `requirements.txt` |
-   | Secrets | None required |
+   | Secrets | None |
 
-4. Deploy and review startup logs. Test the public URL in a signed-out browser if the app is intended for external viewers. Do not publish an unverified URL.
+4. Deploy and check the startup logs. If the app is public, open the URL in a signed-out browser to make sure it works. Don't share a URL you haven't checked.
 
-## Verify the cooling dashboard
+## Check the dashboard
 
-1. Open the app. It should display **Cooling exploration** directly, without a dashboard-mode selector.
-2. At the default hot-and-dry settings, verify the dry option is flagged as failing the modeled thermal checks. Check the electricity, water, cost, emissions, and coolant-temperature outputs.
-3. Change **Climate** to **Cool** and confirm both options report zero makeup water under the modeled assumptions.
-4. Run **AI comparison**, review the search table, and download the summary and trial CSVs.
-5. Change the IT load. Previous search results should be marked stale until the comparison is rerun.
-6. Inspect the hosted logs for exceptions. Confirm a signed-out browser can access the app and no credentials or private data are exposed.
+1. Open the app. It should go straight to **Cooling exploration**.
+2. With the default hot-and-dry settings, the dry option should be flagged as failing the thermal checks. Look over the electricity, water, cost, emissions, and coolant-temperature outputs.
+3. Set **Climate** to **Cool**. Both options should show zero makeup water.
+4. Click **Run AI comparison**, review the search table, and download the summary and trial CSVs.
+5. Change the IT load. The old search results should be marked out of date until you rerun.
+6. Check the logs for errors, and confirm a signed-out browser can open the app without exposing credentials or private data.
 
-GitHub Actions exercises the remaining dashboard controls and research benchmarks, but local tests do not prove a hosted deployment is working.
+GitHub Actions tests the dashboard and benchmarks, but passing tests don't prove the hosted app works.
 
-## Once the live URL is verified
+## After the URL is verified
 
-Add a **Live dashboard** link to the README using the exact working URL. A Streamlit deployment tracking `main` will update after pushes to that branch.
+Add a **Live dashboard** link to the README with the exact working URL. A deployment that tracks `main` updates whenever you push to it.
 
-Keep `.streamlit/secrets.toml`, credentials, private measurements, and unpublished customer information out of the repository.
+Keep `.streamlit/secrets.toml`, credentials, private measurements, and customer information out of the repo.
 
-See [Streamlit's deployment guide](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy) and [cloud logs](https://docs.streamlit.io/deploy/streamlit-community-cloud/manage-your-app) for troubleshooting.
+For troubleshooting, see Streamlit's [deployment guide](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy) and [app logs](https://docs.streamlit.io/deploy/streamlit-community-cloud/manage-your-app).

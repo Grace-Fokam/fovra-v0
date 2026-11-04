@@ -1,1 +1,1 @@
-# Lets `pytest` (not only `python -m pytest`) import the project modules.
+# Lets plain `pytest` import the project modules.

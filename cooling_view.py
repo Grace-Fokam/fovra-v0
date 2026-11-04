@@ -1,4 +1,4 @@
-"""Interactive simulated data-center cooling research dashboard."""
+"""Streamlit dashboard for the simulated data-center cooling experiment."""
 
 import altair as alt
 import pandas as pd
@@ -20,8 +20,8 @@ def get_search_results(case, budget, water_budget, seed):
 
 def render_cooling():
     st.title("Cooling exploration")
-    st.write("Compare ways to cool a simulated data center. Explore electricity and water tradeoffs.")
-    st.caption("An early research experiment. The equipment and weather are illustrative.")
+    st.write("Compare ways to cool a simulated data center and see the electricity and water tradeoffs.")
+    st.caption("Early research. The equipment and weather are illustrative.")
     with st.sidebar:
         st.markdown("### Cooling conditions")
         climate = st.selectbox("Climate", list(CLIMATES), index=1, key="cool_climate")
@@ -29,18 +29,18 @@ def render_cooling():
         surge = st.checkbox("Add a midday workload surge", key="cool_surge")
         size = st.select_slider("Cooler size", [0.6, 0.8, 1.0, 1.2, 1.5, 1.8, 2.0],
                                 value=1.0, key="cool_size",
-                                help="Relative heat-exchanger size. Larger coolers also have larger fans.")
+                                help="Relative heat-exchanger size. Bigger coolers have bigger fans.")
         trigger = st.select_slider("Start evaporative assist above fan fraction",
                                    [0.35, 0.55, 0.75, 1.0], value=1.0, key="cool_trigger",
-                                   help="Lower values use water earlier. Dry cooling is used when it can meet the target below this fan setting.")
-        with st.expander("Environmental and cost assumptions"):
+                                   help="Lower values switch to water sooner. Below this fan setting, dry cooling is used if it can hit the target.")
+        with st.expander("Cost and emissions assumptions"):
             carbon = st.number_input("Grid emissions (kg CO₂e/kWh)", 0.0, 2.0, 0.4, 0.05,
                                      key="cool_carbon")
             electricity = st.number_input("Electricity price ($/kWh)", 0.0, 2.0, 0.12, 0.01,
                                           key="cool_price")
             water_price = st.number_input("Water price ($/m³)", 0.0, 50.0, 2.0, 0.5,
                                           key="cool_water_price")
-        st.caption("24 hours. Both options receive the same IT load and weather. The workload is never reduced.")
+        st.caption("Simulates 24 hours. Both options get the same IT load and weather, and the workload is never reduced.")
 
     case = CoolingCase(climate, float(load), surge, carbon, electricity, water_price)
     summary, traces = get_cooling_results(case, size, trigger)
@@ -52,11 +52,11 @@ def render_cooling():
             st.metric("Makeup water", f"{result.makeup_l:,.0f} L")
             st.caption(f"Evaporated: {result.evaporated_l:,.0f} L · Peak coolant: {result.peak_coolant_c:.1f}°C")
             if result.thermal_ok:
-                st.success("Meets the modeled temperature and end-of-day heat checks.")
+                st.success("Passes the modeled temperature and end-of-day heat checks.")
             else:
-                st.warning("Does not meet the modeled thermal checks. Low electricity use is not a successful result.")
+                st.warning("Fails the modeled thermal checks, so low electricity use here doesn't count.")
 
-    st.caption("Makeup water includes evaporation and blowdown. A dry cooler uses no onsite cooling water in this model.")
+    st.caption("Makeup water is evaporation plus blowdown. The dry cooler uses no onsite water in this model.")
     display = summary[["mode", "it_kwh", "cooling_kwh", "makeup_l", "evaporated_l",
                        "cooling_carbon_kg", "cooling_utility_cost", "peak_coolant_c",
                        "over_limit_minutes", "stored_heat_kwh"]].rename(columns={
@@ -67,7 +67,7 @@ def render_cooling():
         "over_limit_minutes": "Intervals over limit (min)", "stored_heat_kwh": "Heat left in loop (kWh)",
     })
     st.dataframe(display.round(2), hide_index=True, width="stretch")
-    st.caption("Emissions cover cooling electricity only. Cost covers cooling electricity and makeup water. These are not full facility or lifecycle totals.")
+    st.caption("Emissions cover cooling electricity only, and cost covers cooling electricity and makeup water. These aren't full facility or lifecycle totals.")
 
     st.markdown("#### Coolant temperature")
     lines = alt.Chart(traces).mark_line().encode(
@@ -81,7 +81,7 @@ def render_cooling():
         color="#C44B40", strokeDash=[5, 4]
     ).encode(y="limit:Q")
     st.altair_chart((lines + limit).properties(height=280))
-    st.caption("Red line: illustrative 35°C coolant limit. This is not server inlet air or chip temperature.")
+    st.caption("Red line: illustrative 35°C coolant limit (not server inlet air or chip temperature).")
     a, b = st.columns(2)
     with a:
         st.line_chart(traces.pivot(index="time_h", columns="mode", values="cumulative_cooling_kwh"),
@@ -96,8 +96,8 @@ def render_cooling():
 
     st.divider()
     st.markdown("#### Test AI screening")
-    st.write("A small model learns from completed simulations and suggests the next setting to test. Compare it with random search using the same number of simulations.")
-    st.caption("Search covers 35 combinations of cooler type, size, and assist trigger. It uses the climate and workload above. Every reported result is verified in the simulator.")
+    st.write("A small model learns from finished simulations and suggests the next setting to try. See how it compares with random search on the same number of simulations.")
+    st.caption("Searches 35 combinations of cooler type, size, and assist trigger, using the climate and workload above. Every reported result comes from the simulator.")
     a, b, c = st.columns(3)
     budget = a.selectbox("Simulations per method", [8, 12, 18, 24], index=1, key="cool_search_budget")
     water_budget = b.number_input("Maximum makeup water (L/day)", 0.0, 20000.0, 4000.0,
@@ -126,15 +126,15 @@ def render_cooling():
             shape="Tradeoff frontier:N",
             tooltip=["design:N", "cooling_kwh:Q", "makeup_l:Q", "peak_coolant_c:Q"],
         ).properties(height=260))
-        st.caption("Best means lowest cooling electricity among tested settings that meet the water and thermal checks. The frontier shows electricity/water tradeoffs among tested thermally valid settings. It does not include equipment cost or prove an AI advantage.")
+        st.caption("Best = lowest cooling electricity among tested settings that pass the water and thermal checks. The frontier shows electricity/water tradeoffs among tested settings that pass. It ignores equipment cost and doesn't prove an AI advantage.")
         st.download_button("Download search trials (CSV)", searches.to_csv(index=False),
                            "fovra_cooling_search.csv", "text/csv", key="cool_search_download")
     elif stored is not None:
-        st.info("Conditions changed. Run AI comparison to update the search results.")
+        st.info("Conditions changed. Run AI comparison again to update the results.")
 
     with st.expander("What this model assumes"):
-        st.write("A warm-water loop receives IT heat and pump heat. A fan rejects heat to outdoor air. Evaporative assist can use a lower heat-rejection temperature, but consumes water.")
-        st.write("The fan follows a simple physics rule. AI only screens settings in the optional search. It does not control a real data center or invent cooling hardware.")
-        st.write("The loop starts at 32°C. Thermal checks require no interval over 35°C and no more than 0.5 kWh of extra heat left at the end. Infeasible designs keep running without throttling IT or hiding overheating.")
-        st.write("This model excludes chillers, chip temperatures, cooling failures, capital cost, embodied carbon, and water used to generate electricity. The wet model treats all rejected heat as latent heat. Real equipment data is needed to validate it.")
+        st.write("A warm-water loop takes in heat from the IT load and pump, and a fan rejects it to outdoor air. Evaporative assist can reject heat at a lower temperature, but uses water.")
+        st.write("The fan follows a simple physics rule. AI is only used to screen settings in the optional search. It doesn't control a real data center or design hardware.")
+        st.write("The loop starts at 32°C. To pass, it can't go over 35°C and can't end the day with more than 0.5 kWh of extra heat. Failing designs keep running at full load so overheating stays visible.")
+        st.write("It leaves out chillers, chip temperatures, equipment failures, capital cost, embodied carbon, and water used to generate electricity. The wet model treats all rejected heat as evaporation. Validating it would need real equipment data.")
         st.markdown("[Equations, assumptions, and benchmark instructions](https://github.com/Grace-Fokam/fovra-v0/blob/ce12821da8b12acd26e2963cbdfab2f8cd0a2e53/docs/cooling-experiment.md)")

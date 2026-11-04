@@ -1,4 +1,4 @@
-"""Fovra research dashboard for simulated data-center cooling."""
+"""Fovra dashboard for simulated data-center cooling."""
 
 import streamlit as st
 

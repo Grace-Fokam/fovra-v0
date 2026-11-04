@@ -1,4 +1,4 @@
-"""Independent physical identities, model guardrails, and search-budget integrity."""
+"""Tests for cold-plate physics, input checks, and search budgets."""
 
 from dataclasses import replace
 import json
@@ -15,8 +15,8 @@ from benchmark_cold_plate import pareto_flags, run_benchmark
 
 @pytest.mark.parametrize("aspect", [0.1, 0.25, 0.5, 1.0])
 def test_darcy_correlation_against_rectangular_duct_series(aspect):
-    # Exact fully developed rectangular Poiseuille solution, independently of
-    # the polynomial: Q = a*b^3/(12 mu L) * series_factor * dp, a >= b.
+    # Exact rectangular-duct solution, independent of the polynomial:
+    # Q = a*b^3/(12 mu L) * series_factor * dp, a >= b.
     factor = 1 - 192*aspect/pi**5*sum(
         tanh(n*pi/(2*aspect))/n**5 for n in range(1, 400, 2))
     expected_po = 96/(factor*(1+aspect)**2)
