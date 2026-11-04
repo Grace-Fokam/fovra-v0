@@ -1,7 +1,6 @@
 """Illustrative warm-water cooling loop. No equipment calibration or chip model.
 
 See docs/cooling-experiment.md for equations, boundaries, and assumptions.
-The existing tank simulator and its controllers are intentionally independent.
 """
 
 from dataclasses import asdict, dataclass

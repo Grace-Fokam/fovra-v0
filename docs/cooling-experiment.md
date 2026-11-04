@@ -11,9 +11,12 @@ python -m streamlit run app.py
 Pick a climate, IT load, cooler size, and evaporative-assist trigger, and the results update automatically. You can download the comparison or the full time series as CSVs. **Run AI comparison** tests learned screening against random search.
 
 ```bash
-python benchmark_cooling.py --output results/cooling
+validation_dir="$(mktemp -d)"
+python benchmark_cooling.py --output "$validation_dir/cooling"
 python -m pytest -q
 ```
+
+The benchmark writes to a fresh temporary directory so the committed results stay unchanged.
 
 The benchmark uses three synthetic climates, each with and without a midday surge, at an 80 kW base load. Each search gets 12 simulations per case and seed, with seeds 11, 22, and 33 and a makeup-water budget of 4,000 L/day. Metadata records inputs, package versions, and source hashes.
 
