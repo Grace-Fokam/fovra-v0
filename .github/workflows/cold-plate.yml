@@ -12,7 +12,6 @@ on:
       - 'conftest.py'
       - 'docs/cold-plate.md'
       - 'docs/cold-plate-reproducibility.md'
-      - 'docs/integration-validation.md'
       - 'requirements*.txt'
       - '.github/workflows/cold-plate.yml'
   pull_request:
@@ -25,7 +24,6 @@ on:
       - 'conftest.py'
       - 'docs/cold-plate.md'
       - 'docs/cold-plate-reproducibility.md'
-      - 'docs/integration-validation.md'
       - 'requirements*.txt'
       - '.github/workflows/cold-plate.yml'
 

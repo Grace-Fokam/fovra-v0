@@ -8,8 +8,8 @@ unvalidated coupon model does not validate its physical predictions.
 ## CI contract
 
 `.github/workflows/cold-plate.yml` keeps its existing Python 3.10/3.12 test and
-benchmark matrix using `requirements.txt`. `.github/workflows/tests.yml` remains
-unchanged. The additional `pinned-reproducibility` job uses Ubuntu 24.04 and the
+benchmark matrix using `requirements.txt`. `.github/workflows/tests.yml` checks the dashboard and other
+cooling research. The additional `pinned-reproducibility` job uses Ubuntu 24.04 and the
 recorded Python **3.12.14**, installs `requirements-cold-plate.txt`, runs the
 cold-plate and replay-checker tests, and reruns the full benchmark with its
 recorded defaults: four cases, six seeds (11, 22, 33, 44, 55, 66), and 32 queries
@@ -71,8 +71,7 @@ python check_cold_plate_reproducibility.py --actual "$validation_dir/generated"
 git diff --exit-code -- results/
 ```
 
-Keep each environment separate. Do not combine `requirements-benchmark.txt`
-with the cold-plate pins. A smaller budget or fewer seeds is useful for smoke
+Keep the pinned cold-plate environment separate from general testing. A smaller budget or fewer seeds is useful for smoke
 testing but will correctly fail comparison with the full reference experiment.
 
 ## Determinism and dependency sensitivity

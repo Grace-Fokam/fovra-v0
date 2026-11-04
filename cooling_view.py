@@ -1,4 +1,4 @@
-"""Interactive cooling research view, separate from the tank benchmarks."""
+"""Interactive simulated data-center cooling research dashboard."""
 
 import altair as alt
 import pandas as pd

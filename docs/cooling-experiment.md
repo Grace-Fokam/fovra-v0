@@ -1,6 +1,6 @@
 # Cooling exploration
 
-A second physical-system experiment for Fovra v0. It compares cooling electricity and water use for a simulated data center. Cooling remains an exploratory application. The tank experiments and their trained models remain separate.
+This Fovra v0 experiment compares cooling electricity and water use for a simulated data center. Cooling remains an exploratory application with illustrative equipment and weather assumptions.
 
 ## Run it
 
@@ -8,7 +8,7 @@ A second physical-system experiment for Fovra v0. It compares cooling electricit
 python -m streamlit run app.py
 ```
 
-Choose **Cooling exploration**. Select climate, IT load, cooler size, and evaporative-assist trigger. Results update automatically. Download the comparison or full trajectories as CSVs. **Run AI comparison** tests learned screening against random search.
+The dashboard opens directly to cooling exploration. Select climate, IT load, cooler size, and evaporative-assist trigger. Results update automatically. Download the comparison or full trajectories as CSVs. **Run AI comparison** tests learned screening against random search.
 
 ```bash
 python benchmark_cooling.py --output results/cooling

@@ -2,7 +2,7 @@
 
 This experiment searches the **physical dimensions of a straight-channel liquid cold plate**. It is an unvalidated reduced-order research model, intended to choose candidates for higher-fidelity investigation. It does not discover new channel topologies, invent materials, establish patent novelty, or demonstrate hardware performance.
 
-The existing tank, adaptation, and data-center cooling experiments remain independent. This addition is a command-line experiment. It does not change their dashboard, physics, recorded results, or models. The starting point is cooling PR #10, commit `ce12821da8b12acd26e2963cbdfab2f8cd0a2e53`.
+This command-line design experiment complements the system-level data-center cooling research. It is independent of the cooling dashboard and its recorded benchmark outputs.
 
 ## Reproduce
 

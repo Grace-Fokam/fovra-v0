@@ -38,23 +38,8 @@ jobs:
           done
           cat /tmp/fovra-streamlit.log
           exit 1
-      - run: python benchmark_mpc.py --output benchmark-results --repeats 1
-      - uses: actions/upload-artifact@v4
-        with:
-          name: mpc-comparison-python-${{ matrix.python-version }}
-          path: benchmark-results/
-      - run: python benchmark_adaptation.py --output adaptation-results
-      - uses: actions/upload-artifact@v4
-        with:
-          name: adaptation-python-${{ matrix.python-version }}
-          path: adaptation-results/
       - run: python benchmark_cooling.py --output cooling-results
       - uses: actions/upload-artifact@v4
         with:
           name: cooling-python-${{ matrix.python-version }}
           path: cooling-results/
-      - run: python benchmark_sensor_robustness.py --output sensor-robustness-results
-      - uses: actions/upload-artifact@v4
-        with:
-          name: sensor-robustness-python-${{ matrix.python-version }}
-          path: sensor-robustness-results/

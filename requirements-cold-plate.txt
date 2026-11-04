@@ -1,5 +1,5 @@
 # Recorded cold-plate experiment environment, Python 3.12.14.
-# Existing experiments retain their own benchmark requirements.
+# Reproduce the recorded cold-plate scientific outputs with these pins.
 -r requirements.txt
 numpy==2.5.4
 pandas==3.1.0
