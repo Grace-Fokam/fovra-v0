@@ -183,7 +183,7 @@ The sensitivity check re-evaluates each grid winner with heat-transfer multiplie
 | `results/cold_plate/grid_winners.json` | Dimensions, operating conditions, and diagnostics for CFD handoff |
 | `results/cold_plate/metadata.json` | Inputs, budgets, environment, and source hashes |
 
-The tests confirm the math is implemented consistently; they don't validate the physics. All 106 tests pass, including the original 73 and 33 new cold-plate tests. The new tests also cover cases with no feasible design, geometry-failure accounting, identical starting designs, no repeated queries, and finding the best design in small exhaustive searches.
+The tests confirm the math is implemented consistently; they don't validate the physics. The cold-plate tests also cover cases with no feasible design, geometry-failure accounting, identical starting designs, no repeated queries, and finding the best design in small exhaustive searches. Run `python -m pytest -q` for the current full test suite.
 
 ## Before any hardware claim
 
