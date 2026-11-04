@@ -1,5 +1,4 @@
-# Recorded cold-plate experiment environment, Python 3.12.14.
-# Reproduce the recorded cold-plate scientific outputs with these pins.
+# Pinned packages for reproducing the recorded cold-plate results (Python 3.12.14).
 -r requirements.txt
 numpy==2.5.4
 pandas==3.1.0

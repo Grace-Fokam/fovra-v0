@@ -1,7 +1,6 @@
-"""Check exact replay of the seven committed cold-plate scientific outputs.
+"""Check that a cold-plate run exactly matches the seven committed results.
 
-Timing and environment metadata are deliberately outside this allowlist. This
-stdlib-only checker never writes to either directory or regenerates references.
+Timing and metadata files aren't compared. This never writes to either folder.
 """
 
 import argparse
@@ -25,7 +24,7 @@ MAX_DIFF_LINES = 80
 
 
 def check_outputs(reference, actual):
-    """Return success and a readable report, inspecting every required output."""
+    """Check every output and return (success, report)."""
     reference, actual = Path(reference), Path(actual)
     if reference.resolve() == actual.resolve():
         return False, "FAIL: reference and generated directories must be different.\n"
@@ -53,7 +52,7 @@ def check_outputs(reference, actual):
         report.append(f"FAIL {name}: differs from committed reference")
         for label, data in (("reference", expected), ("generated", generated)):
             report.append(f"  {label}: {len(data)} bytes, sha256={hashlib.sha256(data).hexdigest()}")
-        # Keep line endings visible as escapes, including a missing final newline.
+        # Show line endings (and a missing final newline) as escapes.
         def lines(data):
             return [line.rstrip("\r\n") + repr(line[len(line.rstrip("\r\n")):])[1:-1]
                     for line in data.decode("utf-8", errors="backslashreplace").splitlines(keepends=True)]
@@ -63,12 +62,12 @@ def check_outputs(reference, actual):
         preview = list(islice(diff, MAX_DIFF_LINES + 1))
         report.extend(preview[:MAX_DIFF_LINES])
         if len(preview) > MAX_DIFF_LINES:
-            report.append(f"  Diff truncated after {MAX_DIFF_LINES} lines. Compare the full generated artifact.")
+            report.append(f"  Diff truncated after {MAX_DIFF_LINES} lines. See the full generated file.")
 
     report.append(f"{len(SCIENTIFIC_OUTPUTS) - failures}/{len(SCIENTIFIC_OUTPUTS)} scientific outputs match.")
     if failures:
-        report.append("Inspect dependency versions, source hashes, and the file diffs. "
-                      "Do not overwrite historical references to make this check pass.")
+        report.append("Check package versions, source hashes, and the diffs above. "
+                      "Don't overwrite the committed results to make this pass.")
     return failures == 0, "\n".join(report) + "\n"
 
 

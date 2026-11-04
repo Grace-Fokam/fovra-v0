@@ -1,12 +1,12 @@
-# Cold-plate geometry research prototype
+# Cold-plate geometry prototype
 
-This experiment searches the **physical dimensions of a straight-channel liquid cold plate**. It is an unvalidated reduced-order research model, intended to choose candidates for higher-fidelity investigation. It does not discover new channel topologies, invent materials, establish patent novelty, or demonstrate hardware performance.
+This experiment searches the **dimensions of a straight-channel liquid cold plate** using an unvalidated reduced-order model. The goal is to pick candidates for higher-fidelity study. It doesn't discover new channel layouts or materials, establish patent novelty, or demonstrate hardware performance.
 
-This command-line design experiment complements the system-level data-center cooling research. It is independent of the cooling dashboard and its recorded benchmark outputs.
+It runs separately from the data-center cooling dashboard and its results.
 
 ## Reproduce
 
-From the repository root, with Python 3.10 or newer:
+From the repo root, with Python 3.10+:
 
 ```bash
 python -m venv .venv
@@ -17,17 +17,11 @@ validation_dir="$(mktemp -d)"
 python benchmark_cold_plate.py --output "$validation_dir/cold_plate"
 ```
 
-For the recorded numerical environment, use **Python 3.12** and `python -m pip install -r requirements-cold-plate.txt`. The default benchmark has four cases, six seeds, and a budget of 32 calls per method. A shorter smoke run is `python benchmark_cold_plate.py --output /tmp/cold-plate-smoke --seeds 11 --budget 12`. Timings vary by machine. Version changes can alter random-forest decisions. Metadata records source hashes, package versions, every candidate, and all case settings. Scientific CSVs exclude wall-clock measurements so their reproducibility can be checked separately.
+The recorded results used **Python 3.12** and `requirements-cold-plate.txt`. The default benchmark runs four cases, six seeds, and 32 simulator calls per method. For a quick smoke test: `python benchmark_cold_plate.py --output /tmp/cold-plate-smoke --seeds 11 --budget 12`. Timings vary by machine, and package versions can change random-forest decisions. Metadata records source hashes, package versions, every candidate, and all case settings. Wall-clock times are kept out of the scientific CSVs so those can be checked exactly.
 
-The dedicated [pinned scientific replay check](cold-plate-reproducibility.md)
-uses Python 3.12.14 and the recorded scientific dependencies to compare all seven
-scientific output files against `results/cold_plate/`. It runs alongside the
-existing Python 3.10/3.12 compatibility jobs. Use a temporary output directory,
-then `python check_cold_plate_reproducibility.py --actual "$validation_dir/cold_plate"`
-in the pinned environment. The check excludes `timings.csv` and `metadata.json`,
-reports file-specific diffs, and never updates the historical results.
+To confirm an exact match with `results/cold_plate/`, use the [pinned replay check](cold-plate-reproducibility.md) (Python 3.12.14 with the recorded packages), then run `python check_cold_plate_reproducibility.py --actual "$validation_dir/cold_plate"`. It compares the seven scientific outputs, skips `timings.csv` and `metadata.json`, shows per-file diffs, and never changes the committed results.
 
-A single design can also be evaluated without running a search:
+To evaluate one design without a search:
 
 ```python
 from cold_plate import ColdPlateCase, ColdPlateDesign, evaluate_design
@@ -40,26 +34,26 @@ result = evaluate_design(
 print(result)
 ```
 
-All returned temperatures are **modeled cold-plate base or bulk-water temperatures**, not semiconductor junction temperatures. `feasible` means passing this model's operating, geometry, and correlation-domain checks. It is not a hardware certification.
+Temperatures are **modeled cold-plate base or bulk-water temperatures**, not chip junction temperatures. `feasible` means the design passes this model's operating, geometry, and correlation-range checks. It isn't a hardware certification.
 
-## Component, design space, and loading
+## Component, design space, and loads
 
-A 100 mm long × 50 mm wide coupon contains parallel, smooth rectangular channels machined into a conductive base and closed by an ideal adiabatic lid. Heat is distributed uniformly over the entire 50 cm² footprint. Two 1 mm minimum side margins and a 1 mm cover are assumed. Ports and headers are not designed. Equal channel flow is imposed.
+The coupon is 100 mm long and 50 mm wide, with parallel smooth rectangular channels cut into a conductive base and closed by an ideal insulated lid. Heat is spread evenly over the 50 cm² footprint. The model assumes 1 mm minimum side margins and a 1 mm cover, equal flow in every channel, and no designed ports or headers.
 
-The nominal 100 W load is only **2 W/cm²**, intentionally modest. The higher-load case is 150 W, or 3 W/cm². These loads do not represent a current high-power GPU package or its nonuniform hotspots.
+The nominal 100 W load is only **2 W/cm²**, on purpose. The higher-load case is 150 W (3 W/cm²). Neither represents a modern high-power GPU or its hotspots.
 
-| Variable | Search values | Physical role |
+| Variable | Search values | What it affects |
 | --- | --- | --- |
 | Channel width `w` | 0.2, 0.3, 0.5, 0.8 mm | Flow area, hydraulic diameter, wall area |
 | Channel depth `d` | 0.8, 1.2, 1.8 mm | Flow area and fin height |
-| Web thickness `s` | 0.2, 0.4, 0.8 mm | Channel spacing, channel count, fin conduction |
-| Base thickness `t` | 1, 2 mm | Through-thickness conduction and total height |
+| Web thickness `s` | 0.2, 0.4, 0.8 mm | Channel spacing and count, fin conduction |
+| Base thickness `t` | 1, 2 mm | Conduction through the base, total height |
 | Total water flow | 0.05, 0.1, 0.2, 0.4, 0.8 L/min | Heat capacity rate, velocity, pumping |
-| Solid conductivity `k_s` | 167, 390 W/(m K) | Representative conductive-metal values, not certified alloy specifications |
+| Solid conductivity `k_s` | 167, 390 W/(m K) | Typical conductive-metal values, not certified alloy specs |
 
-The pitch is `w+s`. Channel count is `floor((W−2e+s)/(w+s))`, and occupied width is `Nw+(N−1)s`. Any remainder is allocated to the side margins. The model checks positive finite inputs, a 0.2 mm minimum feature, at least two channels, `1 ≤ d/w ≤ 6`, and `t+d+cover ≤ 5 mm`. These are **chosen screening rules**, not a machinist's manufacturing limits. The aspect-ratio restriction also keeps the thermal correlation in its supported orientation: the adiabatic lid spans the channel width.
+Pitch is `w+s`. Channel count is `floor((W−2e+s)/(w+s))` and occupied width is `Nw+(N−1)s`, with any leftover going to the side margins. The model requires positive finite inputs, a 0.2 mm minimum feature, at least two channels, `1 ≤ d/w ≤ 6`, and `t+d+cover ≤ 5 mm`. These are **screening rules we chose**, not machining limits. The aspect-ratio rule also keeps the thermal correlation in its supported orientation, with the insulated lid spanning the channel width.
 
-The resulting full grid has **660 distinct candidates**. A fourth experiment holds flow at 0.2 L/min and searches **132 geometries/material settings**. This controls for the contribution of flow changes. Conductivity and base thickness are not assigned a purchase cost, structural penalty, or embodied-carbon score. High conductivity and thin bases can therefore be favored trivially.
+The full grid has **660 candidates**. A fourth case holds flow at 0.2 L/min and searches **132 geometry/material combinations** to separate out the effect of flow. Conductivity and base thickness carry no cost, structural, or embodied-carbon penalty, so high conductivity and thin bases win easily.
 
 | Case | Heat | Inlet water | Base limit | Candidates |
 | --- | ---: | ---: | ---: | ---: |
@@ -68,11 +62,11 @@ The resulting full grid has **660 distinct candidates**. A fourth experiment hol
 | warm_inlet | 100 W | 30°C | 45°C | 660 |
 | fixed_flow_geometry | 100 W | 25°C | 45°C | 132, all at 0.2 L/min |
 
-Every case limits pressure drop to 20 kPa and plate-attributable pump electricity to 0.5 W. These are illustrative constraints, not customer requirements. Assumed pump efficiency is 40%, operating duration 24 hours, and electricity price $0.15/kWh. Fluid properties are frozen at approximate room-temperature water values: density 997 kg/m³, viscosity 0.00089 Pa s, specific heat 4181 J/(kg K), and conductivity 0.607 W/(m K). They are configurable, and not a full water-property implementation.
+Every case caps pressure drop at 20 kPa and plate-level pump electricity at 0.5 W. These are illustrative, not customer requirements. The model assumes 40% pump efficiency, 24 hours of operation, and $0.15/kWh electricity. Water properties are fixed at approximate room-temperature values (density 997 kg/m³, viscosity 0.00089 Pa s, specific heat 4181 J/(kg K), conductivity 0.607 W/(m K)). They're configurable but not temperature-dependent.
 
-## Thermal and hydraulic relationships
+## Thermal and hydraulic model
 
-Calculations use SI units internally. The supplied L/min flow is converted to m³/s and divided across `N` parallel channels. All channels share the same pressure drop. Their pressure drops are **not added in series**.
+Everything is computed in SI units. Flow in L/min is converted to m³/s and split evenly across `N` parallel channels, which all share the same pressure drop (it is **not added in series**).
 
 ```text
 Vdot = flow_lpm / 60000
@@ -82,7 +76,7 @@ Re = rho u Dh / mu
 Pr = cp mu / k_water
 ```
 
-For `a=w/d` in `(0,1]`, the rectangular fully developed laminar Poiseuille polynomial gives the **Darcy**, not Fanning, friction factor:
+For `a=w/d` in `(0,1]`, the fully developed laminar polynomial for rectangular ducts gives the **Darcy** (not Fanning) friction factor:
 
 ```text
 f_D Re = 96 (1 − 1.3553a + 1.9467a² − 1.7012a³ + 0.9564a⁴ − 0.2537a⁵)
@@ -93,9 +87,9 @@ P_hydraulic = dp Vdot
 P_electric = P_hydraulic / eta_pump
 ```
 
-`K=2` is an exposed entrance/exit-loss assumption referenced to channel velocity. It is not a fitted manifold model and does not account rigorously for developing-flow excess loss. Tests compare the polynomial to the independent rectangular-duct infinite-series solution, including the square-channel `f_D Re ≈ 56.91` limit.
+`K=2` is an adjustable entrance/exit loss based on channel velocity. It isn't a fitted manifold model and doesn't fully capture developing-flow losses. Tests check the polynomial against the exact infinite-series solution for rectangular ducts, including the square-channel limit `f_D Re ≈ 56.91`.
 
-The fully developed **three heated sides with an adiabatic cover** approximation is:
+For **three heated walls with an insulated cover**, the model uses:
 
 ```text
 Nu = 8.235 (1 − 1.883a + 3.767a² − 5.814a³ + 5.361a⁴ − 2a⁵)
@@ -107,9 +101,9 @@ R_convection = 1 / (h A_effective)
 R_base = t / (k_s W L)
 ```
 
-The cover contributes no heated area. The web uses a one-dimensional straight-fin approximation with an adiabatic tip. Combining the ideal duct correlation with finite fin efficiency is a **reduced-order approximation to conjugate heat transfer**, not an exact solution of the actual wall boundary conditions. It also approximates the outer side walls using the same web efficiency.
+The cover adds no heated area. Each web is treated as a straight fin with an insulated tip, and the outer side walls use the same efficiency. Pairing the ideal duct correlation with fin efficiency is a **reduced-order stand-in for conjugate heat transfer**, not an exact solution.
 
-The thermal estimate combines the outlet bulk temperature with the fully developed local film resistance and through-base conduction:
+Peak temperature combines the outlet water temperature with the local film and base resistance:
 
 ```text
 T_out = T_in + (Q_heat + P_hydraulic) / (rho Vdot cp)
@@ -117,34 +111,34 @@ T_base_peak_proxy = T_out + Q_heat (R_base + R_convection)
 R_thermal_reported = (T_base_peak_proxy − T_in) / Q_heat
 ```
 
-The inlet is at the plate, after the external pump. Pressure-work dissipation across the plate is included in bulk coolant heating. External motor losses are outside this boundary. The imposed uniform axial heat input and constant local resistance make the outlet the hottest modeled location. Ignoring entrance heat-transfer enhancement tends to raise this temperature estimate for the ideal duct problem, **but this is not a guaranteed conservative bound for real hardware**: spreading, contacts, maldistribution, and hotspots can increase real temperatures.
+The inlet is measured at the plate, after the pump. Pressure work across the plate heats the coolant; external motor losses are outside the model. With uniform heating and constant local resistance, the outlet is the hottest point. Ignoring entrance-region heat-transfer enhancement tends to raise this estimate for the ideal duct, **but it isn't a guaranteed conservative bound for real hardware**: spreading, contact resistance, uneven flow, and hotspots can all raise real temperatures.
 
-The energy output is pump electric power × hours / 1000. `heat_removed_kwh` is imposed component heat, not electrical consumption. The plate-only pump estimate excludes the pump's fixed overhead, pipes, filters, connectors, headers, CDU, heat rejection, fans, and chillers. Consequently, very small pump numbers must not be presented as real pump electricity or facility energy savings. Recirculating liquid volume is not consumptive water use, which this experiment does not model.
+Energy is pump electric power × hours / 1000. `heat_removed_kwh` is the imposed component heat, not electricity used. The pump estimate covers the plate only. It leaves out pump overhead, pipes, filters, connectors, headers, the CDU, heat rejection, fans, and chillers, so these small numbers shouldn't be presented as real pump electricity or facility savings. Recirculating coolant isn't water consumption, which this experiment doesn't model.
 
-## Correlation domain and omissions
+## Model limits
 
-Domain failures remain in the CSV with explicit reasons, but cannot be returned as feasible recommendations.
+Designs outside these limits stay in the CSV with a reason, but can't be returned as feasible.
 
-- `Re ≤ 2000` is a conservative laminar screening cutoff. There is no transition/turbulent interpolation.
-- Estimated hydrodynamic entry length `0.05 Re Dh` must be no more than 10% of channel length, limiting use of fully developed friction.
-- Estimated thermal entry length `0.1 Re Pr Dh` must be no greater than channel length, so the outlet approximation is defensible as a screening model. These entrance-length estimates and cutoff rules are heuristics, not error guarantees. Upstream flow can still be thermally developing.
-- Inlet water must be at least 20°C, and predicted outlet water at most 40°C. This is a chosen approximation envelope for fixed properties, not an assertion that viscosity is constant across it. Viscosity changes substantially even within this interval. Temperature-dependent properties are needed before quantitative use.
+- `Re ≤ 2000`, a conservative laminar cutoff. There's no transitional or turbulent model.
+- Hydrodynamic entry length `0.05 Re Dh` must be at most 10% of channel length, so fully developed friction applies.
+- Thermal entry length `0.1 Re Pr Dh` must be no longer than the channel, so the outlet estimate holds up for screening. These entry-length rules are heuristics, not error bounds, and flow upstream can still be thermally developing.
+- Inlet water must be at least 20°C and outlet water at most 40°C. Viscosity still changes a lot over this range, so temperature-dependent properties are needed before using the numbers quantitatively.
 
-Other omissions include nonuniform heat flux, lateral and axial spreading, chip/package/TIM contact resistance, conjugate cover conduction, full inlet/outlet geometry, unequal channel flow, roughness, fouling, corrosion, coolant additives, erosion, boiling, leakage, plate deflection, sealing, bonding, tolerances, and reliability. A design outside the envelope might work physically, but this model cannot support it. A design inside the envelope still requires validation.
+The model also ignores uneven heat flux, heat spreading, chip/package/TIM contact resistance, heat flow through the cover, full inlet/outlet geometry, uneven channel flow, roughness, fouling, corrosion, coolant additives, erosion, boiling, leaks, plate deflection, sealing, bonding, tolerances, and reliability. A design outside the limits might still work physically, but this model can't say so, and a design inside them still needs validation.
 
-The dimensional grid itself is not a claim of innovation. It searches a familiar channel family and often selects dimensions at the grid boundary. Such solutions are prompts for model review and design-space extension, not proof of a novel optimum.
+The grid isn't a claim of innovation. It searches a familiar channel family and often picks values at the edge of the grid. Those results suggest where to extend the model or the design space; they aren't proof of a new optimum.
 
-## Search protocol and recorded findings
+## Search setup and results
 
-The objective is **minimum plate-attributable pump electric power under the stated constraints**. Temperature, pressure, thermal resistance, energy, feasibility, and the temperature/pump Pareto set are retained separately. The objective does not claim to minimize all metrics simultaneously.
+The objective is the **lowest plate-level pump electricity that meets the constraints**. Temperature, pressure, thermal resistance, energy, feasibility, and the temperature/pump Pareto set are reported separately.
 
-Random search samples without replacement. Both methods receive the same initial eight randomly selected observations for each case and seed. Each gets exactly 32 simulator calls, including failed evaluations and initialization. Seeds are 11, 22, 33, 44, 55, and 66.
+Random search samples without replacement. Both methods start from the same eight random designs for each case and seed, and each gets exactly 32 simulator calls, counting failed evaluations and the starting designs. Seeds are 11, 22, 33, 44, 55, and 66.
 
-The learned method fits a 64-tree random forest only to its completed observations. Outputs are temperature, pressure, pump power, outlet temperature, Reynolds number, and entry-length fractions. Output scaling is estimated from observed samples only. It chooses predicted feasible candidates with the lowest pump power. If none appears feasible, it minimizes the sum of normalized constraint violations. Every fifth post-initial query instead explores the next untested random candidate. Every selected result is checked by the simulator. No surrogate prediction becomes a reported performance result.
+The learned method fits a 64-tree random forest to its own completed results only. It predicts temperature, pressure, pump power, outlet temperature, Reynolds number, and entry-length fractions, with output scaling taken from observed samples only. It picks the predicted-feasible design with the lowest pump power, or if none look feasible, the one with the smallest total normalized constraint violation. Every fifth query after the start explores the next untested random design instead. Every pick is run through the simulator, and no prediction is ever reported as a result.
 
-The complete grid is evaluated separately and hidden from search. Searches make actual simulator calls and do not access a precomputed lookup table. The grid is an optimum **only within the enumerated candidates and this model**, not a global continuous-design or physical optimum. It is used afterward for regret and evaluations-to-within-5%-of-grid-best metrics.
+The full grid is evaluated separately and hidden from both searches, which make real simulator calls rather than reading from a lookup table. The grid best is optimal **only among these candidates and within this model**. It's used afterward to measure regret and how many evaluations each method needed to get within 5% of it.
 
-The recorded run produced:
+Results from the recorded run:
 
 | Case | Surrogate wins / ties / losses vs random | Mean random gap to grid | Mean surrogate gap to grid | Runs within 5% of grid, random / surrogate |
 | --- | --- | ---: | ---: | --- |
@@ -153,9 +147,9 @@ The recorded run produced:
 | warm_inlet | 4 / 1 / 1 | 163.9% | 51.4% | 1/6 / 5/6 |
 | fixed_flow_geometry | 3 / 3 / 0 | 17.2% | 0.0% | 3/6 / 6/6 |
 
-Both methods found feasible designs in all 24 case/seed pairs. Overall the surrogate won **16**, tied **6**, and lost **2**. Large relative gaps divide by very small plate-only power values. Absolute values are included in the CSVs. A bad run strongly affects the mean. The higher-load and warm-inlet cases induce closely related feasible sets and the same search outcomes. They must not be treated as independent evidence of transfer or generalization. These six fixed seeds are an initial benchmark, not a statistical significance claim or a held-out evaluation of algorithm choices.
+Both methods found feasible designs in all 24 case/seed pairs. Overall the surrogate won **16**, tied **6**, and lost **2**. The relative gaps are large because they divide by very small pump-power values (absolute values are in the CSVs), and one bad run moves the mean a lot. The higher-load and warm-inlet cases end up with nearly the same feasible sets and identical outcomes, so they shouldn't count as separate evidence. Six fixed seeds make this an initial benchmark, not a statistically significant or held-out result.
 
-| Grid-selected design result | Nominal, variable flow | Nominal, fixed flow |
+| Grid-best design | Nominal, variable flow | Nominal, fixed flow |
 | --- | ---: | ---: |
 | Width / depth / web / base | 0.8 / 1.8 / 0.2 / 1.0 mm | Same |
 | Channel count | 48 | 48 |
@@ -165,46 +159,46 @@ Both methods found feasible designs in all 24 case/seed pairs. Overall the surro
 | Pressure drop | 56.471 Pa | 114.102 Pa |
 | Plate-only pump electricity | 0.235 mW | 0.951 mW |
 
-For context, the arbitrary reference geometry (0.3 mm width, 1.2 mm depth, 0.4 mm web, 1 mm base, 390 W/(m K)) at the same 0.2 L/min has a modeled 33.022°C peak and 1908.324 Pa pressure drop. The grid's fixed-flow choice trades a higher temperature for lower hydraulic resistance while remaining below the limit. The reference is not a commercial competitor or an optimized engineering baseline.
+For comparison, an arbitrary reference design (0.3 mm width, 1.2 mm depth, 0.4 mm web, 1 mm base, 390 W/(m K)) at the same 0.2 L/min reaches 33.022°C with a 1908.324 Pa pressure drop. The grid's fixed-flow pick trades a bit more temperature for much lower pressure drop while staying under the limit. The reference isn't a commercial product or an optimized baseline.
 
-The run used **1,536 search calls**, **2,112 separate grid calls**, four reference-design calls, and 20 post-search sensitivity calls. On this execution environment, all full-grid evaluations together took about 0.05 seconds, while the 24 surrogate runs together took about 22.31 seconds. The random runs took about 0.09 seconds in total. Search time includes model fitting and selection. **Exhaustive search is the practical choice for this cheap model.** The surrogate is a working interface for future expensive CFD/measurement evaluations, not a demonstrated computational speedup.
+The run used **1,536 search calls**, **2,112 grid calls**, four reference-design calls, and 20 sensitivity calls. On this machine, the full grid took about 0.05 seconds, the 24 surrogate runs about 22.31 seconds, and the random runs about 0.09 seconds, with search time including model fitting. **For a model this cheap, exhaustive search is the practical choice.** The surrogate is set up for future expensive CFD or lab evaluations; it isn't a demonstrated speedup.
 
-Sensitivity outputs reevaluate each grid winner at heat-transfer multipliers 0.7/1.0/1.3 and at loss coefficients 0/2/5, varying one assumption at a time. All remained model-feasible in this run. These arbitrary perturbations are neither calibrated uncertainty bounds nor a robust optimization result. They exclude the major omitted physics.
+The sensitivity check re-evaluates each grid winner with heat-transfer multipliers of 0.7, 1.0, and 1.3 and loss coefficients of 0, 2, and 5, one at a time. All stayed feasible in the model. These are arbitrary perturbations, not calibrated uncertainty bounds, and they don't cover the physics the model leaves out.
 
-## Outputs, tests, and next research gate
+## Files and tests
 
 | File | Contents |
 | --- | --- |
-| `cold_plate.py` | Standalone physical model and feasibility checks |
+| `cold_plate.py` | Physics model and feasibility checks |
 | `cold_plate_search.py` | Equal-budget random and learned search |
-| `benchmark_cold_plate.py` | Cases, oracle, traces, timing, sensitivity, provenance |
-| `tests/test_cold_plate.py` | Analytical limits, independent pressure solution, conservation, constraints, query accounting, reproducibility |
-| `results/cold_plate/grid.csv` | All cases and candidate outputs, including failures and Pareto flags |
-| `results/cold_plate/search_trials.csv` | Every queried design and best feasible objective after each call |
-| `results/cold_plate/search_summary.csv` | Best verified results, feasibility, query-to-target counts, grid gaps |
-| `results/cold_plate/paired_comparison.csv` | All win/tie/loss outcomes, without dropping failed methods |
-| `results/cold_plate/timings.csv` | Measured wall-clock time, separate from deterministic results |
-| `results/cold_plate/reference_design.csv` | Explicit, arbitrary reference geometry under each case |
-| `results/cold_plate/sensitivity.csv` | Selected-design sensitivity to assumed heat transfer and minor losses |
+| `benchmark_cold_plate.py` | Cases, grid reference, traces, timing, sensitivity, provenance |
+| `tests/test_cold_plate.py` | Analytical limits, independent pressure solution, conservation, constraints, query counting, reproducibility |
+| `results/cold_plate/grid.csv` | Every case and candidate, including failures and Pareto flags |
+| `results/cold_plate/search_trials.csv` | Every queried design and the best feasible result after each call |
+| `results/cold_plate/search_summary.csv` | Best verified results, feasibility, calls to target, gaps to grid |
+| `results/cold_plate/paired_comparison.csv` | Every win/tie/loss, including failed methods |
+| `results/cold_plate/timings.csv` | Wall-clock times, kept separate from the deterministic results |
+| `results/cold_plate/reference_design.csv` | The arbitrary reference design under each case |
+| `results/cold_plate/sensitivity.csv` | Grid-winner sensitivity to heat transfer and minor losses |
 | `results/cold_plate/grid_winners.json` | Dimensions, operating conditions, and diagnostics for CFD handoff |
-| `results/cold_plate/metadata.json` | Complete inputs, budgets, environment, and source hashes |
+| `results/cold_plate/metadata.json` | Inputs, budgets, environment, and source hashes |
 
-Tests establish mathematical implementation consistency, not physical validation. All 106 tests pass, including the original 73 and 33 new cold-plate tests. The new tests also check no-feasible-design behavior, geometric failure accounting, identical initialization, no repeated queries, and exhaustive small-space recovery.
+The tests confirm the math is implemented consistently; they don't validate the physics. All 106 tests pass, including the original 73 and 33 new cold-plate tests. The new tests also cover cases with no feasible design, geometry-failure accounting, identical starting designs, no repeated queries, and finding the best design in small exhaustive searches.
 
-Before any hardware-performance claim:
+## Before any hardware claim
 
-1. **Thermal-engineering review:** replace illustrative requirements with an actual heat map, package stack, inlet conditions, material specification, allowable temperatures, pressure budget, and pump curve. Review correlation boundary conditions and units. A machining/bonding partner must assess channels, wall strength, sealing, roughness, and tolerances.
-2. **Conjugate CFD:** model the base, fins, lid, real headers and ports, temperature-dependent coolant properties, and nonuniform heating. Check mesh independence, conservation residuals, entrance development, pressure losses, and flow distribution. Evaluate a preregistered set spanning widths, depths, spacings, flow rates, and model-limit boundaries, including poor candidates. Use the resulting discrepancies to revise the model and define an actual validity region.
-3. **Bench measurements:** fabricate a small set including a reference and distinct predicted tradeoff candidates. Use calibrated inlet/outlet and base-temperature measurements, flow measurement, pressure taps, heater power measurement, and insulation/loss characterization. Repeat across conditions and quantify uncertainty. Measure real pump electrical input separately from hydraulic power. Report thermal resistance and pressure curves with uncertainty, not only a best point.
-4. **A meaningful expensive-evaluation comparison:** lock algorithms and budgets before running CFD or hardware tests. Include random search plus a conventional constrained optimizer or space-filling design, and eventually a stronger Bayesian-optimization baseline. Separate training/calibration from held-out shapes and conditions. Count failures, meshing, solver retries, parallelism, and wall time. Reject claimed gains smaller than physical measurement/model uncertainty.
+1. **Thermal-engineering review:** Replace the illustrative requirements with a real heat map, package stack, inlet conditions, material spec, temperature limits, pressure budget, and pump curve. Review the correlation boundary conditions and units. Have a machining or bonding partner assess the channels, wall strength, sealing, roughness, and tolerances.
+2. **Conjugate CFD:** Model the base, fins, lid, real headers and ports, temperature-dependent coolant properties, and uneven heating. Check mesh independence, conservation, entrance effects, pressure losses, and flow distribution. Test a preregistered set that spans the design space and the model's limits, including weak candidates, and use the discrepancies to revise the model and define where it's valid.
+3. **Bench tests:** Build a small set that includes the reference and distinct tradeoff candidates. Use calibrated temperature, flow, pressure, and heater-power measurements, and characterize insulation and heat losses. Repeat across conditions, quantify uncertainty, and measure real pump electrical input separately from hydraulic power. Report thermal-resistance and pressure curves with uncertainty, not just a best point.
+4. **A fair expensive-evaluation comparison:** Fix algorithms and budgets before running CFD or hardware tests. Include random search, a conventional constrained optimizer or space-filling design, and eventually a strong Bayesian-optimization baseline. Keep calibration data separate from held-out shapes and conditions. Count failures, meshing, solver retries, parallelism, and wall time, and don't claim gains smaller than the measurement or model uncertainty.
 
-A later geometry family could vary channel routing, manifolds, ribs, or branching. Those changes require new hydraulic/heat-transfer treatment or CFD rather than inserting shape variables into these straight-duct correlations.
+Later designs could vary channel routing, manifolds, ribs, or branching. Those would need new heat-transfer and flow treatment or CFD, not just new shape variables in these straight-duct correlations.
 
-## Sources and how they are used
+## Sources
 
-- R. K. Shah and A. L. London, *Laminar Flow Forced Convection in Ducts*, Academic Press (1978). Source of rectangular-duct analytical correlations. The implemented Darcy factor is four times the Fanning convention. The friction relation is also reproduced in [this University of Illinois research report, §2.1.2](https://www.ideals.illinois.edu/items/11059/bitstreams/40706/data.pdf).
-- D. J. G. Kuiphuis et al. (2025), [Thermal-hydrodynamic modeling and design for microchannel cold plates subjected to multiple heat sources](https://doi.org/10.1016/j.applthermaleng.2024.125220), [author-accessible paper](https://ris.utwente.nl/ws/portalfiles/portal/480381856/1-s2.0-S1359431124028886-main.pdf), equations 42–43 and thermal/hydraulic modeling discussion. Used to verify the three-side Nusselt polynomial and distinguish it from four-side heating. This prototype does **not** implement that paper's complete model or inherit its reported validation accuracy.
-- P.-S. Lee and S. V. Garimella (2006), [Thermally Developing Flow and Heat Transfer in Rectangular Microchannels of Different Aspect Ratios](https://docs.lib.purdue.edu/coolingpubs/23/), DOI 10.1016/j.ijheatmasstransfer.2006.02.011. Establishes why entrance development and heating boundary conditions need explicit treatment. Its developing-flow correlations are not implemented here.
-- [NIST Chemistry WebBook, thermophysical properties of fluid systems](https://webbook.nist.gov/chemistry/fluid/) is a reference route for replacing the frozen water properties with a temperature-dependent model. The rounded defaults are assumptions, not data imported from a specific measurement set.
+- R. K. Shah and A. L. London, *Laminar Flow Forced Convection in Ducts*, Academic Press (1978). Source of the rectangular-duct correlations. The Darcy factor used here is four times the Fanning convention. The friction relation is also given in [this University of Illinois report, §2.1.2](https://www.ideals.illinois.edu/items/11059/bitstreams/40706/data.pdf).
+- D. J. G. Kuiphuis et al. (2025), [Thermal-hydrodynamic modeling and design for microchannel cold plates subjected to multiple heat sources](https://doi.org/10.1016/j.applthermaleng.2024.125220) ([author copy](https://ris.utwente.nl/ws/portalfiles/portal/480381856/1-s2.0-S1359431124028886-main.pdf)), equations 42–43 and the modeling discussion. Used to check the three-wall Nusselt polynomial and distinguish it from four-wall heating. This prototype does **not** implement that paper's full model or inherit its validation.
+- P.-S. Lee and S. V. Garimella (2006), [Thermally Developing Flow and Heat Transfer in Rectangular Microchannels of Different Aspect Ratios](https://docs.lib.purdue.edu/coolingpubs/23/), DOI 10.1016/j.ijheatmasstransfer.2006.02.011. Shows why entrance effects and heating boundary conditions need explicit treatment. Its developing-flow correlations aren't implemented here.
+- [NIST Chemistry WebBook, thermophysical properties of fluid systems](https://webbook.nist.gov/chemistry/fluid/), a possible source for replacing the fixed water properties with temperature-dependent ones. The rounded defaults are assumptions, not values from a specific dataset.
 
-No source cited here validates this implementation or its selected designs.
+None of these sources validate this implementation or its selected designs.

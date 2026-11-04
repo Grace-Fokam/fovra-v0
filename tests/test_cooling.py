@@ -1,4 +1,4 @@
-"""Physical accounting, matched conditions, feasibility, and search integrity."""
+"""Tests for cooling physics, accounting, thermal checks, and search."""
 
 import json
 
@@ -28,7 +28,7 @@ def test_heat_and_electricity_balance(mode, climate):
     assert frame.fan_fraction.between(0, 1).all()
     assert np.isfinite(frame.select_dtypes(include="number")).all().all()
     summary = summarize_cooling(frame, CoolingCase(climate=climate, surge=True), CoolingDesign(mode))
-    # Whole five-minute intervals must not lose a minute to float truncation.
+    # Over-limit time should be exact multiples of five minutes.
     expected_intervals = ((frame.temperature_before_c > LIMIT_C + 1e-8)
                           | (frame.coolant_c > LIMIT_C + 1e-8)).sum()
     assert summary["over_limit_minutes"] == 5 * expected_intervals

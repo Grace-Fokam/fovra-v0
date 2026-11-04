@@ -1,61 +1,36 @@
-# Cold-plate scientific replay
+# Reproducing the cold-plate results
 
-The compatibility matrix answers whether the experiment runs on supported Python
-and dependency versions. The pinned replay job answers whether the recorded
-scientific outputs still reproduce. Both checks are needed. Reproducing this
-unvalidated coupon model does not validate its physical predictions.
+There are two separate checks. The compatibility matrix confirms the experiment runs on supported Python and package versions. The pinned replay confirms the recorded scientific outputs still come out exactly the same. Reproducing this unvalidated model doesn't validate its physics.
 
-## CI contract
+## What CI checks
 
-`.github/workflows/cold-plate.yml` keeps its existing Python 3.10/3.12 test and
-benchmark matrix using `requirements.txt`. `.github/workflows/tests.yml` checks the dashboard and other
-cooling research. The additional `pinned-reproducibility` job uses Ubuntu 24.04 and the
-recorded Python **3.12.14**, installs `requirements-cold-plate.txt`, runs the
-cold-plate and replay-checker tests, and reruns the full benchmark with its
-recorded defaults: four cases, six seeds (11, 22, 33, 44, 55, 66), and 32 queries
-per method. It writes under a newly created runner temporary directory.
+`.github/workflows/cold-plate.yml` runs the tests and benchmark on Python 3.10 and 3.12 with `requirements.txt`. `.github/workflows/tests.yml` covers the dashboard and the rest of the cooling work.
 
-The scientific package pins are NumPy 2.5.4, pandas 3.1.0, SciPy 1.18.1,
-scikit-learn 1.9.1, joblib 1.6.0, and threadpoolctl 3.7.0. They match the historical
-`results/cold_plate/metadata.json`. The requirements file includes the broader
-application dependencies, so this is a pinned scientific stack, not a complete
-lock of every transitive UI dependency. The job saves the resolved package list.
+The `pinned-reproducibility` job uses Ubuntu 24.04 and the recorded Python **3.12.14**, installs `requirements-cold-plate.txt`, runs the cold-plate and replay-checker tests, and reruns the full benchmark with its recorded defaults: four cases, six seeds (11, 22, 33, 44, 55, 66), and 32 queries per method. It writes to a fresh temporary directory.
 
-`check_cold_plate_reproducibility.py` uses only the Python standard library and
-requires exact byte equality for this explicit set:
+The scientific packages are pinned to NumPy 2.5.4, pandas 3.1.0, SciPy 1.18.1, scikit-learn 1.9.1, joblib 1.6.0, and threadpoolctl 3.7.0, matching `results/cold_plate/metadata.json`. The other app dependencies aren't pinned, so this locks the scientific stack, not every UI package. The job saves the full resolved package list.
 
-| Output | Scientific evidence checked |
+`check_cold_plate_reproducibility.py` uses only the standard library and requires an exact byte match for these files:
+
+| Output | What it covers |
 | --- | --- |
-| `grid.csv` | Finite-grid model evaluations and Pareto flags |
-| `grid_winners.json` | Case settings, winning geometry, and evaluated responses |
+| `grid.csv` | Every grid evaluation and Pareto flag |
+| `grid_winners.json` | Case settings, winning geometry, and results |
 | `paired_comparison.csv` | Every paired win, tie, or loss |
-| `reference_design.csv` | Reference geometry responses in each case |
-| `search_summary.csv` | Selected designs, thermal metrics, feasibility, and query counts |
-| `search_trials.csv` | Complete ordered search traces and observed responses |
-| `sensitivity.csv` | Heat-transfer and minor-loss sensitivity evaluations |
+| `reference_design.csv` | The reference design under each case |
+| `search_summary.csv` | Selected designs, thermal results, feasibility, and query counts |
+| `search_trials.csv` | Full ordered search traces and results |
+| `sensitivity.csv` | Heat-transfer and minor-loss sensitivity runs |
 
-`timings.csv` and `metadata.json` are excluded from equivalence checks. They
-remain in the uploaded artifact for diagnosis, along with the benchmark log,
-Python version, resolved packages, and comparison report. Metadata includes
-source hashes and experiment settings, as well as environment information.
+`timings.csv` and `metadata.json` aren't compared. They're still uploaded with the benchmark log, Python version, package list, and comparison report for debugging. Metadata includes source hashes, experiment settings, and environment details.
 
-The checker examines every required file even if another file fails. Missing
-reference or generated files fail explicitly. Changed files report their names,
-sizes, SHA-256 hashes, and unified diffs (up to 80 lines per file). Diff line
-endings are displayed as `\n` or `\r\n`, so serialization differences are visible.
-Full generated files are retained for further comparison. The command exits 1
-on any failure, including accidental comparison of a directory with itself.
-GitHub's explicit Bash shell propagates a failure through `tee` via `pipefail`.
+The checker looks at every file even after one fails. Missing files fail explicitly. Changed files show their names, sizes, SHA-256 hashes, and a unified diff (up to 80 lines each), with line endings shown as `\n` or `\r\n` so formatting differences are visible. Full generated files are kept for further comparison. The command exits 1 on any failure, including comparing a directory with itself. In CI, Bash's `pipefail` makes sure a failure isn't hidden by `tee`.
 
-No floating-point tolerance, sorting, or aggregate-only comparison is applied.
-This strict policy matches the demonstrated byte-for-byte replay. Small
-roundoff or formatting differences also fail and require diagnosis. They are
-not automatically evidence of changed physics, but must not silently relax the
-recorded replay contract. A change to the comparison policy requires review.
+There's no floating-point tolerance, sorting, or summary-only comparison. This matches the byte-for-byte replay we've shown. Small rounding or formatting changes will also fail. They don't necessarily mean the physics changed, but they shouldn't quietly loosen the check either. Any change to the comparison rules needs review.
 
-## Run locally without altering history
+## Run it locally
 
-From the repository root with Python 3.12.14 available:
+From the repo root, with Python 3.12.14:
 
 ```bash
 python3.12 -m venv .venv/cold-plate
@@ -71,100 +46,49 @@ python check_cold_plate_reproducibility.py --actual "$validation_dir/generated"
 git diff --exit-code -- results/
 ```
 
-Keep the pinned cold-plate environment separate from general testing. A smaller budget or fewer seeds is useful for smoke
-testing but will correctly fail comparison with the full reference experiment.
+Keep this pinned environment separate from your general one. A smaller budget or fewer seeds works for a quick smoke test, but it will (correctly) fail the comparison against the full recorded run.
 
-## Determinism and dependency sensitivity
+## Determinism
 
-The search already has deterministic controls in `cold_plate_search.py`:
+`cold_plate_search.py` already controls randomness:
 
-- A seeded NumPy generator creates an ordered candidate permutation. Candidate
-  construction uses a fixed Cartesian-product order.
-- Each forest has `random_state=seed` and `n_jobs=1`.
-- Candidate IDs break exact acquisition-rank ties. Verified winners are ordered
-  by pump power, temperature, then candidate ID.
-- Exploration uses a fixed schedule. Measured elapsed time never enters the
-  selection logic and is removed from scientific files before serialization.
+- A seeded NumPy generator sets the candidate order, and candidates are built in a fixed order.
+- Each forest uses `random_state=seed` and `n_jobs=1`.
+- Exact ties are broken by candidate ID. Verified winners are sorted by pump power, then temperature, then candidate ID.
+- Exploration follows a fixed schedule. Elapsed time never affects selection and is removed from the scientific files.
 
-The CI job additionally fixes Python hash seeding and limits numerical-library
-thread counts to one. These settings reduce execution variability without
-changing the historical search algorithm or its model parameters.
+CI also fixes Python's hash seed and limits math libraries to one thread. This reduces variation without changing the search algorithm or its settings.
 
-Scikit-learn's [RandomForestRegressor documentation](https://scikit-learn.org/1.9/modules/generated/sklearn.ensemble.RandomForestRegressor.html#notes)
-explains that feature permutations and tied split improvements require a fixed
-random state for deterministic fitting. Fixed seeds alone do not establish
-equivalence between library releases. Changes to tree fitting, numeric
-reductions, or prediction ordering can affect greedy acquisition decisions.
-Once a candidate differs, subsequent training observations differ too. This is
-a plausible mechanism, not proof of a specific upstream implementation change.
+As [scikit-learn's RandomForestRegressor docs](https://scikit-learn.org/1.9/modules/generated/sklearn.ensemble.RandomForestRegressor.html#notes) explain, a fixed random state is needed for deterministic fits because of feature permutations and tied splits. But fixed seeds don't guarantee identical results across library versions. Changes in tree fitting, numeric reductions, or prediction order can change which candidate the search picks, and once one pick differs, every later training set differs too. That's a plausible explanation, not proof of a specific upstream change.
 
-On November 2, 2026, the unmodified integration source at
-`6cc65cda09bcc80b31d4ba953ebb2fd39bb0fa9d` was rerun locally. In the available
-general Python 3.12.14 environment (NumPy 2.3.5, pandas 2.2.3, SciPy 1.17.0,
-scikit-learn 1.8.0, joblib 1.5.3, threadpoolctl 3.6.0):
+### What we found
 
-- Five of seven scientific files reproduced exactly. Only `search_trials.csv`
-  and `search_summary.csv` differed. All random-search rows were unchanged.
-- 182 of 1,536 trial rows had different candidate IDs. The first differing
-  choice in file order was nominal/surrogate/seed 11/evaluation 24: recorded
-  candidate 542 versus general-environment candidate 562.
-- Two of 48 summary rows changed. For higher-load/surrogate/seed 22, the selected
-  candidate changed from 605 to 604. Modeled peak base temperature changed from
-  approximately 38.783909°C to 39.083427°C despite equal pump power.
-- Every paired outcome stayed unchanged: 16 wins, six ties, and two losses.
+On November 2, 2026, we reran the unmodified source at `6cc65cda09bcc80b31d4ba953ebb2fd39bb0fa9d` locally in a general Python 3.12.14 environment (NumPy 2.3.5, pandas 2.2.3, SciPy 1.17.0, scikit-learn 1.8.0, joblib 1.5.3, threadpoolctl 3.6.0):
 
-The selected geometry and roughly 0.30°C modeled temperature difference are
-scientific-result changes, not harmless print rounding. The broad environment
-may legitimately execute a different version of the search, but it cannot be
-treated as an exact replay of the recorded experiment. The new pinned job must
-fail on these differences even when aggregate counts remain unchanged.
+- Five of seven scientific files matched exactly. Only `search_trials.csv` and `search_summary.csv` differed, and every random-search row was unchanged.
+- 182 of 1,536 trial rows picked different candidates. The first difference was nominal/surrogate/seed 11/evaluation 24: candidate 542 in the recorded run vs. 562 in the general environment.
+- Two of 48 summary rows changed. For higher-load/surrogate/seed 22, the selected candidate went from 605 to 604, and the modeled peak base temperature went from about 38.783909°C to 39.083427°C at the same pump power.
+- Every paired outcome stayed the same: 16 wins, six ties, and two losses.
 
-A controlled follow-up changed **only scikit-learn from 1.8.0 to 1.9.1** in an
-isolated environment inheriting the general stack. All six reported package
-versions were checked in the generated metadata. All seven scientific files
-then matched the historical references byte for byte. Changing scikit-learn
-alone was sufficient to remove the observed drift in this experiment. This
-does not prove that other dependency changes are irrelevant in general or
-identify the exact changed tree-fitting operation.
+A different selected design and a roughly 0.30°C temperature change are real result changes, not rounding. The general environment may be running a legitimately different version of the search, but it isn't an exact replay, and the pinned job has to fail on these differences even when the overall counts match.
 
-| Local run | Changed scientific dependencies from general stack | Exact matches to historical files |
+A follow-up changed **only scikit-learn, from 1.8.0 to 1.9.1**, in an isolated environment built on the general stack. With all six package versions confirmed in the generated metadata, all seven files matched the recorded results byte for byte. In this experiment, the scikit-learn change alone explained the drift. That doesn't prove other dependency changes never matter, or pinpoint the exact tree-fitting change.
+
+| Local run | Packages changed from the general stack | Exact matches with recorded files |
 | --- | --- | --- |
 | General stack | None | 5/7 |
-| General stack, repeated with CI hash/thread settings | None | 5/7, and 7/7 against the first general run |
-| Scikit-learn-only upgrade, with CI settings | scikit-learn 1.9.1 | 7/7 |
-| Full recorded stack, with CI settings | All six recorded scientific pins | 7/7 |
+| General stack, rerun with CI hash/thread settings | None | 5/7, and 7/7 against the first general run |
+| scikit-learn upgrade only, with CI settings | scikit-learn 1.9.1 | 7/7 |
+| Full recorded stack, with CI settings | All six recorded pins | 7/7 |
 
-All runs used Python 3.12.14 on the same Linux host and had identical benchmark,
-search, and simulator source hashes. The repeat rules out unfixed hash/thread
-settings as the explanation for the observed general-stack variation on this
-host. The single-package trial used a separate virtual environment with
-`--system-site-packages` over the general stack, then
-`python -m pip install --no-deps scikit-learn==1.9.1`. It reran the default full
-benchmark and the same checker, without editing source or reference data.
+Every run used Python 3.12.14 on the same Linux machine with identical benchmark, search, and simulator source hashes. The repeat run rules out hash and thread settings as the cause on this machine. The single-package test used a separate virtual environment with `--system-site-packages` on top of the general stack, then `python -m pip install --no-deps scikit-learn==1.9.1`, and reran the full default benchmark and checker without changing any source or reference data.
 
-The complete suite passed **140 tests** in both the general and fully pinned
-environments. The pinned run emitted 21 existing Streamlit/pandas deprecation
-warnings. `pip check` passed in the pinned environment. Twelve new checker tests
-cover missing and changed scientific files, unchanged aggregate outcomes with
-changed trials, multiple failures, tiny numeric drift, serialization changes,
-excluded timing/metadata, self-comparison, CLI exit codes, bounded diagnostics,
-and reference preservation. Local workflow parsing and `git diff --check`
-passed. Python 3.10 execution and GitHub-hosted jobs are separate CI checks.
+All **140 tests** passed in both the general and fully pinned environments. The pinned run showed 21 existing Streamlit/pandas deprecation warnings, and `pip check` passed. Twelve new checker tests cover missing and changed files, unchanged totals with changed trials, multiple failures, tiny numeric drift, formatting changes, excluded timing/metadata, self-comparison, exit codes, diff limits, and leaving the references untouched. Workflow parsing and `git diff --check` passed locally. Python 3.10 and the GitHub-hosted jobs are checked separately in CI.
 
-## Handling a replay failure
+## If the replay fails
 
-1. Inspect the named file's diff and the generated artifact. Separate missing
-   files, serialization-only changes, small roundoff, and changed candidates,
-   feasibility, or model responses.
-2. Check Python and scientific package versions against the recorded pins and
-   compare metadata source hashes. Rerun in a fresh pinned environment before
-   attributing a mismatch to changed scientific code.
-3. Investigate any remaining difference under the pinned stack. Do not replace
-   committed references merely to make CI green. An intentional model or
-   dependency update needs separately recorded results and scientific review,
-   preserving the old evidence.
+1. Look at the diff and generated artifact for the failing file. Sort out whether it's a missing file, a formatting-only change, small rounding, or a change in selected candidates, feasibility, or results.
+2. Compare Python and package versions with the recorded pins, and compare source hashes in the metadata. Rerun in a fresh pinned environment before blaming the scientific code.
+3. If a difference remains under the pinned stack, investigate it. Don't replace the committed references just to make CI pass. An intentional model or dependency change needs separately recorded results and scientific review, with the old results kept.
 
-Pinning package versions does not lock wheel builds, system math libraries, or
-CPU architecture. The supported CI target is Ubuntu x86-64 with the recorded
-Python patch release. Other systems may expose a new portability issue. Exact
-replay and physical validation remain separate requirements.
+Pinning packages doesn't lock wheel builds, system math libraries, or CPU architecture. The supported target is Ubuntu x86-64 on the recorded Python patch release, and other systems may surface new portability issues. Exact replay and physical validation are separate requirements.

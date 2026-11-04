@@ -1,5 +1,5 @@
 [client]
-# Do not display raw uncaught exception details to visitors.
+# Hide raw error details from visitors.
 showErrorDetails = "none"
 
 [theme]

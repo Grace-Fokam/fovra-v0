@@ -1,4 +1,4 @@
-"""The replay gate must catch individual scientific changes, not just totals."""
+"""The replay check should catch any changed result, not just changed totals."""
 
 import json
 from pathlib import Path
@@ -26,7 +26,7 @@ def test_recorded_outputs_pass_without_timing_or_metadata(replay):
     success, report = check_outputs(DEFAULT_REFERENCE, replay)
     assert success
     assert "7/7 scientific outputs match" in report
-    # Non-scientific files may differ or be absent without weakening the gate.
+    # Timing and metadata can differ without affecting the result.
     (replay / "timings.csv").write_text("elapsed_s\n999999\n")
     (replay / "metadata.json").write_text('{"python": "another environment"}')
     assert check_outputs(DEFAULT_REFERENCE, replay) == (success, report)
@@ -41,7 +41,7 @@ def test_every_scientific_output_is_required_and_checked(replay, name):
         data[0]["result"]["peak_base_c"] += 1
         path.write_text(json.dumps(data, indent=2) + "\n")
     else:
-        # Alter a data row while preserving the header and all other files.
+        # Change one data row and leave everything else alone.
         lines = original.splitlines(keepends=True)
         lines[1] = "999," + lines[1].split(",", 1)[1]
         path.write_text("".join(lines))
