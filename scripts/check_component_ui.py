@@ -8,7 +8,7 @@ import time
 from urllib.error import URLError
 from urllib.request import urlopen
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "ui-review"
@@ -58,13 +58,34 @@ def check_browser():
         page.get_by_text("Design studio", exact=True).click()
         page.get_by_role("button", name="Grid best", exact=True).click()
         page.get_by_text("41.386 °C", exact=True).wait_for()
-        page.set_viewport_size({"width": 390, "height": 844})
-        sidebar_close = page.get_by_test_id("stSidebarCollapseButton").get_by_role("button")
-        if sidebar_close.is_visible():
-            sidebar_close.click()
-        page.get_by_role("heading", name="Explore the geometry of cooling.").evaluate("el => el.scrollIntoView({block: 'start', behavior: 'instant'})")
-        page.screenshot(path=str(OUTPUT / "design-mobile.png"))
-        assert page.locator('[data-testid="stException"]').count() == 0
+        expect(page.get_by_test_id("stException")).to_have_count(0)
+        page.close()
+
+        # Start a separate mobile session. Resizing the desktop session during
+        # a Streamlit rerun can remove the sidebar button between locating and
+        # clicking it, leaving Playwright waiting for a control already gone.
+        mobile = browser.new_page(
+            viewport={"width": 390, "height": 844},
+            device_scale_factor=1, is_mobile=True, has_touch=True,
+        )
+        mobile.on("pageerror", lambda error: errors.append(str(error)))
+        mobile.goto(URL)
+        expect(mobile.get_by_text("41.386 °C", exact=True)).to_be_visible()
+        expect(mobile.get_by_text("56.471 Pa", exact=True)).to_be_visible()
+        expand = mobile.get_by_role("button", name="Expand sidebar", exact=True)
+        expect(expand).to_be_visible()
+        expand.click()
+        collapse = mobile.get_by_role("button", name="Collapse sidebar", exact=True)
+        expect(collapse).to_have_attribute("aria-expanded", "true")
+        expect(mobile.get_by_role("button", name="Grid best", exact=True)).to_be_visible()
+        collapse.click()
+        expect(collapse).to_be_hidden()
+        expect(expand).to_be_visible()
+        heading = mobile.get_by_role("heading", name="Explore the geometry of cooling.")
+        heading.scroll_into_view_if_needed()
+        expect(heading).to_be_in_viewport()
+        mobile.screenshot(path=str(OUTPUT / "design-mobile.png"))
+        expect(mobile.get_by_test_id("stException")).to_have_count(0)
         assert not errors, errors
         browser.close()
 
