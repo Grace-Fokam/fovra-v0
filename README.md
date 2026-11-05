@@ -5,22 +5,20 @@
 [![Tests](https://github.com/Grace-Fokam/fovra-v0/actions/workflows/tests.yml/badge.svg)](https://github.com/Grace-Fokam/fovra-v0/actions/workflows/tests.yml)
 [![Cold-plate research](https://github.com/Grace-Fokam/fovra-v0/actions/workflows/cold-plate.yml/badge.svg)](https://github.com/Grace-Fokam/fovra-v0/actions/workflows/cold-plate.yml)
 
-Fovra is exploring AI-assisted design of computer components, starting with liquid cooling. This repo holds early simulation experiments for cold-plate design and data-center cooling. The exact product and customer requirements are still being worked out.
+Can AI help design better computer parts? This is my first shot at finding out, starting with liquid cooling. It's the early research behind Fovra.
 
-**Status:** These are illustrative models, not validated hardware. The results don't show new cooling hardware, manufacturability, real-world efficiency gains, or a general speed advantage from machine learning.
+**Heads up:** Everything here is simulated. None of it proves the designs can be built or would save energy in real life.
 
-## Research
+## What's here
 
-| Track | What's built | Limits |
+| Project | What it does | Not there yet |
 | --- | --- | --- |
-| **Liquid cold plates** | A command-line prototype that searches straight-channel geometry, material, and flow using a reduced-order thermal/hydraulic model. Compares surrogate-assisted search with random search at equal simulator budgets. | No CFD, fabricated parts, or measurements. Manufacturability and material cost aren't modeled yet. [Details](docs/cold-plate.md) |
-| **Data-center cooling** | A Streamlit dashboard comparing dry cooling and evaporative assist under the same simulated IT load and weather, plus a learned-screening vs. random-search experiment. | Synthetic equipment curves and weather. System-level configuration, not component design. [Details](docs/cooling-experiment.md) |
+| **Cold plates** | A command-line tool that tries straight-channel layouts, materials, and flow rates in a simplified heat-and-flow model, comparing ML-guided and random search. | No CFD, real parts, or measurements. Doesn't check manufacturability or cost. [More](docs/cold-plate.md) |
+| **Data-center cooling** | A Streamlit dashboard comparing dry cooling and evaporative assist under the same load and weather. | Uses synthetic equipment data and weather. [More](docs/cooling-experiment.md) |
 
-The dashboard covers cooling exploration. The cold-plate work runs from the command line.
+## Try it
 
-## Run locally
-
-Requires Python 3.10+.
+You'll need Python 3.10+.
 
 ```bash
 git clone https://github.com/Grace-Fokam/fovra-v0.git
@@ -31,9 +29,9 @@ python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-Open `http://localhost:8501` to adjust climate, IT load, cooler size, and evaporative-assist settings, and see the effect on electricity, water, and modeled temperature. **Run AI comparison** tests learned screening against random search on the same simulation budget.
+Then open `http://localhost:8501`. Play with climate, IT load, and cooling settings, or hit **Run AI comparison** to race ML against random search.
 
-To run the tests and benchmarks:
+Tests and benchmarks:
 
 ```bash
 python -m pytest -q
@@ -41,21 +39,19 @@ python benchmark_cooling.py --output /tmp/fovra-cooling
 python benchmark_cold_plate.py --output /tmp/fovra-cold-plate
 ```
 
-These write to temp folders so the committed results stay untouched. The recorded cold-plate results used Python 3.12.14 and `requirements-cold-plate.txt`; see [reproducing the cold-plate results](docs/cold-plate-reproducibility.md) to check them exactly.
+These write to temp folders, so the saved results don't change. To match my cold-plate numbers exactly, see the [reproducibility guide](docs/cold-plate-reproducibility.md). To put the dashboard online, see the [Streamlit guide](docs/deploy-streamlit.md).
 
-To deploy the dashboard, see the [Streamlit guide](docs/deploy-streamlit.md). There's no verified live URL yet.
+## What I found
 
-## Findings
+**Cold plates:** ML-guided search beat random search in 16 of 24 matched tests, tied 6, and lost 2. But brute-forcing every design took 0.05 seconds versus 22.31 for ML, so ML wasn't faster here. The winners also lean on the thinnest walls and most conductive materials, which might be hard or pricey to build.
 
-**Cold-plate search.** Across 24 matched synthetic comparisons, random-forest-assisted search beat random search 16 times, tied 6, and lost 2. But evaluating every candidate took about 0.05 seconds total, while the surrogate runs took about 22.31 seconds. This does **not** show ML is faster than exhaustive search. The winning designs often pick the thinnest walls and base and the most conductive material, so fabrication and material tradeoffs need a look before treating them as hardware candidates.
+**Data-center cooling:** Only 9 of 18 tests had any setup that met the limits. In those, ML and random search tied 7 times and each won once. No clear win for ML yet.
 
-**Data-center cooling.** In the nine comparisons with a feasible option, AI screening and random search tied seven times, with one win and one loss for AI. The other nine had no feasible option under the modeled constraints. The dashboard flags modeled thermal failures. This does **not** show learned search is better.
+Details live in the [cold-plate](docs/cold-plate.md) and [cooling](docs/cooling-experiment.md) docs and `results/`.
 
-Assumptions, outputs, and reproducibility details are in the [cold-plate](docs/cold-plate.md) and [cooling](docs/cooling-experiment.md) docs and in `results/`. GitHub Actions runs the tests and the pinned cold-plate replay.
+## What's next
 
-## Next steps
-
-1. Define a real component use case with engineering partners: heat loads, inlet conditions, temperature and pressure limits, and manufacturing requirements.
-2. Validate preregistered cold-plate candidates with conjugate CFD, including mesh and conservation checks and uncertainty estimates.
-3. Build and instrument a small reference set to measure temperature, flow, pressure loss, and pump power.
-4. Compare surrogate-assisted search with conventional optimizers at matched budgets, once each evaluation is expensive enough to matter.
+1. Team up with engineers on a real use case with real heat loads, limits, and manufacturing needs.
+2. Check the top cold-plate designs with full CFD, picked ahead of time so there's no cherry-picking.
+3. Build a few real plates and measure temperature, flow, and pressure loss.
+4. Compare against standard optimizers once each simulation is slow enough to matter.
