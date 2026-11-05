@@ -1,4 +1,6 @@
-# Fovra v0
+# Fovra · Cooling Design Lab
+
+*Research prototype · v0*
 
 [![Tests](https://github.com/Grace-Fokam/fovra-v0/actions/workflows/tests.yml/badge.svg)](https://github.com/Grace-Fokam/fovra-v0/actions/workflows/tests.yml)
 [![Cold-plate research](https://github.com/Grace-Fokam/fovra-v0/actions/workflows/cold-plate.yml/badge.svg)](https://github.com/Grace-Fokam/fovra-v0/actions/workflows/cold-plate.yml)
