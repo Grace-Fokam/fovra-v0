@@ -11,10 +11,10 @@ Fovra is exploring AI-assisted design of computer components, starting with liqu
 
 | Track | What's built | Limits |
 | --- | --- | --- |
-| **Liquid cold plates** | A command-line prototype that searches straight-channel geometry, material, and flow using a reduced-order thermal/hydraulic model. Compares surrogate-assisted search with random search at equal simulator budgets. | No CFD, fabricated parts, or measurements. Manufacturability and material cost aren't modeled yet. [Details](docs/cold-plate.md) |
+| **Liquid cold plates** | An interactive Streamlit design explorer plus reproducible command-line research. Adjust straight-channel geometry, material conductivity and flow using the existing reduced-order thermal/hydraulic model. Compares surrogate-assisted search with random search at equal simulator budgets. | No CFD, fabricated parts, or measurements. Manufacturability and material cost aren't modeled yet. [Details](docs/cold-plate.md) |
 | **Data-center cooling** | A Streamlit dashboard comparing dry cooling and evaporative assist under the same simulated IT load and weather, plus a learned-screening vs. random-search experiment. | Synthetic equipment curves and weather. System-level configuration, not component design. [Details](docs/cooling-experiment.md) |
 
-The dashboard covers cooling exploration. The cold-plate work runs from the command line.
+The dashboard opens in **Component design**. Use the sidebar to switch to the preserved **Data-center cooling** view. The component workspace includes live design comparisons, dimensioned geometry, model feasibility checks, and a replay of the recorded optimization experiments.
 
 ## Run locally
 
@@ -29,7 +29,14 @@ python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-Open `http://localhost:8501` to adjust climate, IT load, cooler size, and evaporative-assist settings, and see the effect on electricity, water, and modeled temperature. **Run AI comparison** tests learned screening against random search on the same simulation budget.
+Open `http://localhost:8501`:
+
+- **Design studio:** adjust width, depth, web, base, conductivity and total water flow. Compare the current design with the arbitrary reference, the recorded grid best and up to three pinned designs. All comparisons use the same operating case. Invalid geometry has no thermal or hydraulic outputs. Out-of-domain calculations are labeled diagnostics.
+- **Recorded search:** choose one of four operating cases, six seeds and a replay budget from 1–32 simulator evaluations. Inspect random versus surrogate-assisted search, all-seed outcomes, temperature/pressure tradeoffs and the full recorded runtimes. This reads committed results and never reruns or overwrites the benchmark. Geometry edits do not change recorded search results.
+- **Model & evidence:** inspect limitations, provenance and links to the equations and reproducibility checks.
+- **Data-center cooling:** adjust climate, IT load, cooler size and evaporative assist. **Run AI comparison** still tests learned screening against random search at the same simulation budget.
+
+The component view offers CSV comparisons and a JSON export containing the current design, case and simulator diagnostics. Pins last for the browser session. The fixed-flow case applies 0.2 L/min to all compared designs. See the [explorer walkthrough](docs/component-explorer.md).
 
 To run the tests and benchmarks:
 
