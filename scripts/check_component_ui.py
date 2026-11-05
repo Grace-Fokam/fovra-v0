@@ -25,6 +25,7 @@ def check_browser():
         page.goto(URL)
         page.get_by_text("41.386 °C", exact=True).wait_for()
         page.get_by_text("56.471 Pa", exact=True).wait_for()
+        page.get_by_role("heading", name="Explore the geometry of cooling.").wait_for()
         page.locator(".st-key-cp_design_download").get_by_role("button").wait_for()
         page.screenshot(path=str(OUTPUT / "design-desktop.png"))
 
@@ -42,9 +43,9 @@ def check_browser():
         page.get_by_role("button", name="Clear pinned designs", exact=True).wait_for(state="visible")
         page.get_by_text("Recorded search", exact=True).click()
         page.get_by_text("Check all seeds", exact=True).wait_for()
-        page.get_by_text("Search the design space", exact=True).scroll_into_view_if_needed()
+        page.get_by_text("Search the design space", exact=True).evaluate("el => el.scrollIntoView({block: 'start', behavior: 'instant'})")
         page.screenshot(path=str(OUTPUT / "search-desktop.png"))
-        page.get_by_text("Temperature & pressure tradeoffs", exact=True).scroll_into_view_if_needed()
+        page.get_by_text("Temperature & pressure tradeoffs", exact=True).evaluate("el => el.scrollIntoView({block: 'start', behavior: 'instant'})")
         page.screenshot(path=str(OUTPUT / "tradeoffs-desktop.png"))
         assert page.locator("canvas").count() >= 2
         page.locator(".st-key-cp_budget").get_by_role("slider").press("Home")
@@ -61,7 +62,7 @@ def check_browser():
         sidebar_close = page.get_by_test_id("stSidebarCollapseButton").get_by_role("button")
         if sidebar_close.is_visible():
             sidebar_close.click()
-        page.get_by_role("heading", name="Explore the geometry of cooling.").scroll_into_view_if_needed()
+        page.get_by_role("heading", name="Explore the geometry of cooling.").evaluate("el => el.scrollIntoView({block: 'start', behavior: 'instant'})")
         page.screenshot(path=str(OUTPUT / "design-mobile.png"))
         assert page.locator('[data-testid="stException"]').count() == 0
         assert not errors, errors

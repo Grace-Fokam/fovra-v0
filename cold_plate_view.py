@@ -171,7 +171,8 @@ def _design_studio(case, design, winner):
         st.altair_chart(alt.Chart(valid).mark_point(size=180, filled=True).encode(
             x=alt.X("pressure_pa:Q", title="Pressure drop (Pa)", scale=alt.Scale(type="log")),
             y=alt.Y("peak_base_c:Q", title="Peak base proxy (°C)", scale=alt.Scale(zero=False)),
-            color=alt.Color("design:N", title="Design"), shape=alt.Shape("Status:N", title=None),
+            color=alt.Color("design:N", title="Design",
+                            legend=alt.Legend(orient="top", labelLimit=220)), shape=alt.Shape("Status:N", title=None),
             tooltip=["design:N", "Status:N", "flow_lpm:Q", "peak_base_c:Q", "pressure_pa:Q", "pump_w:Q"],
         ).properties(height=230), use_container_width=True)
     st.caption("The reference is an arbitrary geometry, not a commercial product. Grid best means lowest "
@@ -192,10 +193,11 @@ def _search_chart(trace, winner, budget, metadata):
     colors = alt.Scale(domain=list(METHOD_LABELS.values()), range=COLORS)
     line = alt.Chart(trace).mark_line(interpolate="step-after", point=True).encode(
         x=alt.X("evaluation:Q", title="Simulator evaluations per method",
-                scale=alt.Scale(domain=[1, metadata["budget"]]), axis=alt.Axis(tickMinStep=1)),
-        y=alt.Y("pump_mw:Q", title="Best feasible plate pump (mW) · lower is better",
+                scale=alt.Scale(domain=[1, metadata["budget"]], nice=False), axis=alt.Axis(tickMinStep=1)),
+        y=alt.Y("pump_mw:Q", title="Best feasible pump (mW)",
                 scale=alt.Scale(type="log")),
-        color=alt.Color("Method:N", scale=colors, title=None),
+        color=alt.Color("Method:N", scale=colors, title=None,
+                        legend=alt.Legend(orient="top", direction="horizontal", labelLimit=300)),
         tooltip=["Method:N", "evaluation:Q", alt.Tooltip("pump_mw:Q", format=".4f")])
     oracle = alt.Chart(pd.DataFrame({"pump_mw": [winner["result"]["pump_w"]*1000]})).mark_rule(
         color="#52677b", strokeDash=[6, 4]).encode(y="pump_mw:Q")
@@ -217,7 +219,7 @@ def _tradeoff_chart(data, case_id, case, snapshot):
     chart = alt.Chart(points).mark_circle(size=40, opacity=0.45).encode(
         x=alt.X("pressure_pa:Q", title="Pressure drop (Pa) · logarithmic", scale=alt.Scale(type="log")),
         y=alt.Y("peak_base_c:Q", title="Peak base proxy (°C)", scale=alt.Scale(zero=False)),
-        color=alt.Color("Status:N", title=None, scale=alt.Scale(
+        color=alt.Color("Status:N", title=None, legend=alt.Legend(orient="top", labelLimit=250), scale=alt.Scale(
             domain=["Model feasible", "Outside model domain", "Operating limit failed"],
             range=["#93b5c4", "#c9a89c", "#cb6b5c"])),
         tooltip=["candidate_id:Q", "Status:N", "width_mm:Q", "depth_mm:Q", "flow_lpm:Q",
@@ -225,7 +227,7 @@ def _tradeoff_chart(data, case_id, case, snapshot):
     best = snapshot[snapshot.found_feasible].copy()
     best["Method"] = best.method.map(METHOD_LABELS)
     selected = alt.Chart(best).mark_point(size=190, filled=True, stroke="#102738", strokeWidth=1).encode(
-        x="pressure_pa:Q", y="peak_base_c:Q", color=alt.Color("Method:N", title=None,
+        x="pressure_pa:Q", y="peak_base_c:Q", color=alt.Color("Method:N", title=None, legend=alt.Legend(orient="top", labelLimit=300),
         scale=alt.Scale(domain=list(METHOD_LABELS.values()), range=COLORS)),
         shape=alt.Shape("Method:N", legend=None),
         tooltip=["Method:N", "candidate_id:Q", "peak_base_c:Q", "pressure_pa:Q", "pump_w:Q"])
@@ -318,7 +320,7 @@ def _model_notes(data):
 
 
 def render_cold_plate():
-    st.markdown('''<style>
+    st.html('''<style>
     .cp-hero {padding:28px 32px;border-radius:16px;background:linear-gradient(115deg,#102738,#164e57);color:#f7fbfc;margin-bottom:22px}
     .cp-hero .eyebrow {font-size:12px;letter-spacing:2px;color:#80ddd5;font-weight:700}
     .cp-hero h1 {color:#f7fbfc;font-size:36px;letter-spacing:-1px;padding:10px 0}
@@ -326,7 +328,7 @@ def render_cold_plate():
     @media(max-width:640px) {.cp-hero {padding:20px}.cp-hero h1 {font-size:27px}}
     </style><div class="cp-hero"><div class="eyebrow">FOVRA / COMPONENT RESEARCH</div>
     <h1>Explore the geometry of cooling.</h1>
-    <p>Shape a liquid cold plate. Examine the tradeoffs. See how a learned search chooses its next design.</p></div>''', unsafe_allow_html=True)
+    <p>Shape a liquid cold plate. Examine the tradeoffs. See how a learned search chooses its next design.</p></div>''')
     st.caption("SIMULATION ONLY · Unvalidated reduced-order research. No experimentally validated hardware performance.")
     try:
         data = recorded_results()
