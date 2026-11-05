@@ -13,3 +13,7 @@ __pycache__/
 .DS_Store
 .vscode/
 .idea/
+
+# Regenerable CFD geometry and meshes
+.venv-cfd/
+build/cfd/

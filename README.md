@@ -16,6 +16,8 @@ Fovra is exploring AI-assisted design of computer components, starting with liqu
 
 The dashboard covers cooling exploration. The cold-plate work runs from the command line.
 
+The [preliminary CFD handoff](cfd/cold_plate/README.md) supplies parameterized CAD and mesh generation, seven recorded comparison cases, boundary assumptions, and a verification protocol. Geometry preparation is complete enough for solver setup, but no CFD solution or physical validation is included.
+
 ## Run locally
 
 Requires Python 3.10+.

@@ -1,0 +1,18 @@
+{
+  "backend": "HEOS::Water",
+  "CoolProp_version": "7.2.0",
+  "CoolProp_git_revision": "98b3523d5daa98454618d381d2ae53f7471d216b",
+  "absolute_pressure_pa": 101325.0,
+  "pressure_status": "Analyst sensitivity assumption, not a partner requirement",
+  "range_c": [
+    20,
+    60
+  ],
+  "spacing_k": 1,
+  "interpolation": "Piecewise linear. No extrapolation. Verify midpoint errors before use.",
+  "fluid_status": "Pure water assumption. Not a glycol or inhibitor blend specification.",
+  "references": [
+    "https://coolprop.org/fluid_properties/fluids/Water.html",
+    "https://coolprop.org/coolprop/HighLevelAPI.html"
+  ]
+}
