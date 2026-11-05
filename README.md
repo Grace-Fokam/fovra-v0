@@ -57,5 +57,3 @@ Assumptions, outputs, and reproducibility details are in the [cold-plate](docs/c
 2. Validate preregistered cold-plate candidates with conjugate CFD, including mesh and conservation checks and uncertainty estimates.
 3. Build and instrument a small reference set to measure temperature, flow, pressure loss, and pump power.
 4. Compare surrogate-assisted search with conventional optimizers at matched budgets, once each evaluation is expensive enough to matter.
-
-These are research milestones, not signs of commercial readiness.
