@@ -1,3 +1,7 @@
+[client]
+# Hide raw error details from visitors.
+showErrorDetails = "none"
+
 [theme]
 base = "light"
 primaryColor = "#0d8c89"
@@ -5,3 +9,4 @@ backgroundColor = "#f7f9fa"
 secondaryBackgroundColor = "#eaf0f3"
 textColor = "#102738"
 font = "sans serif"
+baseRadius = "medium"
