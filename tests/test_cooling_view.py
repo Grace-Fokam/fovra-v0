@@ -10,6 +10,8 @@ APP = str(Path(__file__).resolve().parents[1] / "app.py")
 def cooling_app():
     at = AppTest.from_file(APP, default_timeout=120).run()
     assert not at.exception
+    at.radio(key="research_view").set_value("Data-center cooling").run()
+    assert not at.exception
     return at
 
 

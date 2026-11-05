@@ -1,13 +1,7 @@
-[client]
-# Hide raw error details from visitors.
-showErrorDetails = "none"
-
 [theme]
 base = "light"
-primaryColor = "#2F6FD0"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F6F5F2"
-textColor = "#1F1F1D"
-font = "Poppins:https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
-headingFont = "Lora:https://fonts.googleapis.com/css2?family=Lora:wght@500;600&display=swap"
-baseRadius = "medium"
+primaryColor = "#0d8c89"
+backgroundColor = "#f7f9fa"
+secondaryBackgroundColor = "#eaf0f3"
+textColor = "#102738"
+font = "sans serif"

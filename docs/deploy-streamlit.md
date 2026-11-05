@@ -1,6 +1,8 @@
 # Deploy on Streamlit Community Cloud
 
-The dashboard is a public demo of **simulated data-center cooling**. It compares illustrative dry and evaporative cooling setups on electricity, makeup water, and modeled temperature limits. The equipment curves and weather are synthetic, so it doesn't represent validated equipment or proven energy savings.
+The dashboard contains **simulated component design** and **data-center cooling** views. It opens the cold-plate explorer, with geometry controls, model diagnostics, comparisons and recorded search results. The separate cooling view compares illustrative dry and evaporative setups. Neither represents validated hardware or proven efficiency gains.
+
+Creating a pull request does not deploy the app. Review and approve the interface before merging or deploying. These instructions are for an approved deployment.
 
 ## Create the app
 
@@ -23,7 +25,7 @@ First, connect [Streamlit Community Cloud](https://share.streamlit.io/) to the G
 
 ## Check the dashboard
 
-1. Open the app. It should go straight to **Cooling exploration**.
+1. Open the app. It should go straight to **Component design**. Follow the [component explorer checks](component-explorer.md#review-checks), then choose **Data-center cooling** in the sidebar.
 2. With the default hot-and-dry settings, the dry option should be flagged as failing the thermal checks. Look over the electricity, water, cost, emissions, and coolant-temperature outputs.
 3. Set **Climate** to **Cool**. Both options should show zero makeup water.
 4. Click **Run AI comparison**, review the search table, and download the summary and trial CSVs.
