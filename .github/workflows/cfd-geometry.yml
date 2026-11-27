@@ -1,0 +1,25 @@
+name: CFD geometry preparation
+on:
+  pull_request:
+    paths:
+      - 'cfd/**'
+      - 'tests/test_cfd_handoff.py'
+      - 'cold_plate.py'
+      - 'results/cold_plate/grid.csv'
+      - 'results/cold_plate/grid_winners.json'
+      - 'docs/cold-plate.md'
+      - '.github/workflows/cfd-geometry.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  geometry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: sudo apt-get update && sudo apt-get install -y libglu1-mesa
+      - run: python -m pip install -r cfd/cold_plate/requirements.txt pytest==8.4.2
+      - run: python -m pytest -q tests/test_cfd_handoff.py

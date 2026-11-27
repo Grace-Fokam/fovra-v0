@@ -1,0 +1,16 @@
+input,status,current_treatment,why_needed,required_before
+headers,unknown,Individual channel inlets with equal imposed flow,Flow distribution and recirculation prediction,Device flow distribution CFD
+ports_and_pressure_planes,unknown,Channel mouths only,Connection loss and comparable device pressure drop,Port-to-port pressure claim
+lid_and_bond,unknown,Zero-thickness adiabatic no-slip roof,Top-wall conduction and actual wetted assembly,Assembly thermal CFD
+seals_and_grooves,unknown,Omitted,Leak paths interference and strength assessment,Manufacturing or pressure integrity review
+heat_map,unknown,Uniform 100 W over 50 square centimetres,Hotspots and spreading,Processor thermal performance claim
+contact_footprint_and_package_stack,unknown,Heated underside of whole plate,Die to package to cold-plate temperature relationship,Junction-temperature prediction
+TIM_and_contact_resistance,unknown,Omitted,Interface temperature drop and contact nonuniformity,Package thermal prediction
+material_alloy_and_temperature_dependence,unknown,Constant isotropic 390 or 167 W per m K,Actual conductivity corrosion and strength,Manufacturing selection
+coolant_composition,unknown,Pure-water baseline and sensitivity,Viscosity conductivity corrosion and compatibility,Partner-condition CFD
+absolute_pressure,unknown,101325 Pa only for property-table sensitivity,Fluid state and pressure-dependent properties,Partner-condition CFD
+roughness_and_tolerances,unknown,Smooth nominal dimensions,Pressure loss flow variation and manufacturability,Hardware performance prediction
+orientation_and_gravity,unknown,Gravity omitted in baseline,Buoyancy sensitivity and installation conditions,Application-level thermal prediction
+pump_curve_and_complete_loop,unknown,Omitted,Electrical demand and operating flow,System efficiency claim
+mounting_and_flatness,unknown,Omitted,Contact and structural deformation,Assembly design
+operating_limits_and_measurement_uncertainty,unknown,Original illustrative model limits retained in source inputs,Acceptance thresholds and meaningful validation,Partner acceptance or bench validation

@@ -1,0 +1,46 @@
+{
+  "commit": "3e088831d50f8c65281bc6e84482700395a1c1a7",
+  "files": {
+    "results/cold_plate/grid.csv": "ab9605e2a6fb99095a78ba0c107910f7ccce96d64b5c18c50481e9c321377677",
+    "results/cold_plate/grid_winners.json": "47d2e4feb08bd3356d791e893a3900a101fcfe61e7e2c1a98fece8ed774fcfbe",
+    "cold_plate.py": "60f12b3aad7f69eb4facf2dd0edf44a5643b60547ba0ac8d408185ac2097eb87",
+    "docs/cold-plate.md": "4489dff488c2fce41fe7127e497b73d9e120df31b09cf789573e05aa8c8b9330"
+  },
+  "selection": [
+    [
+      "N0_nominal",
+      603,
+      "Nominal grid winner and primary verification case"
+    ],
+    [
+      "G1_narrow",
+      423,
+      "Narrower channels, count changes at fixed footprint and total flow"
+    ],
+    [
+      "G2_shallow",
+      543,
+      "Shallower channels at fixed width, webs and total flow"
+    ],
+    [
+      "G3_thicker_web",
+      623,
+      "Thicker webs and fewer channels at fixed footprint"
+    ],
+    [
+      "G4_thicker_base",
+      613,
+      "Base conduction and spreading sensitivity"
+    ],
+    [
+      "M1_lower_conductivity",
+      602,
+      "Material-property sensitivity without changing geometry"
+    ],
+    [
+      "F1_double_flow",
+      605,
+      "Flow-only control, same geometry as the fixed-flow winner"
+    ]
+  ]
+}

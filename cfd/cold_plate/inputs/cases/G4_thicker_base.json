@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "case_id": "G4_thicker_base",
+  "status": "Prepared geometry and analytical inputs only. CFD not performed.",
+  "provenance": {
+    "repository": "Grace-Fokam/fovra-v0",
+    "commit": "3e088831d50f8c65281bc6e84482700395a1c1a7",
+    "path": "results/cold_plate/grid.csv",
+    "csv_line": 615,
+    "recorded_case": "nominal",
+    "candidate_id": 613
+  },
+  "selection_reason": "Base conduction and spreading sensitivity",
+  "recorded_case": {
+    "name": "nominal",
+    "heat_w": 100.0,
+    "inlet_c": 25.0,
+    "max_base_c": 45.0,
+    "max_pressure_pa": 20000.0,
+    "max_pump_w": 0.5,
+    "pump_efficiency": 0.4,
+    "electricity_per_kwh": 0.15,
+    "hours": 24.0,
+    "length_mm": 100.0,
+    "plate_width_mm": 50.0,
+    "edge_mm": 1.0,
+    "cover_mm": 1.0,
+    "max_height_mm": 5.0,
+    "min_feature_mm": 0.2,
+    "max_depth_width_ratio": 6.0,
+    "minor_loss_k": 2.0,
+    "heat_transfer_multiplier": 1.0,
+    "rho_kg_m3": 997.0,
+    "mu_pa_s": 0.00089,
+    "cp_j_kgk": 4181.0,
+    "coolant_k_w_mk": 0.607
+  },
+  "recorded_design": {
+    "width_mm": 0.8,
+    "depth_mm": 1.8,
+    "web_mm": 0.2,
+    "base_mm": 2.0,
+    "flow_lpm": 0.1,
+    "conductivity_w_mk": 390.0
+  },
+  "geometry_m": {
+    "length": 0.1,
+    "width": 0.05,
+    "channel_width": 0.0008,
+    "channel_depth": 0.0018,
+    "web": 0.0002,
+    "base": 0.002,
+    "side_margin": 0.0010999999999999994,
+    "channel_count": 48,
+    "modeled_height": 0.0038,
+    "screening_cover_thickness_not_meshed": 0.001
+  },
+  "solid": {
+    "conductivity_w_mk": 390.0,
+    "isotropic": true,
+    "alloy": null,
+    "density_kg_m3": null,
+    "cp_j_kgk": null
+  },
+  "fluid_constant": {
+    "rho_kg_m3": 997.0,
+    "mu_pa_s": 0.00089,
+    "cp_j_kgk": 4181.0,
+    "k_w_mk": 0.607
+  },
+  "boundary_inputs": {
+    "heat_w": 100.0,
+    "heat_flux_w_m2": 19999.999999999996,
+    "inlet_k": 298.15,
+    "total_flow_m3_s": 1.6666666666666667e-06,
+    "channel_flow_m3_s": 3.472222222222222e-08,
+    "inlet_velocity_m_s": 0.024112654320987654,
+    "total_mass_flow_kg_s": 0.0016616666666666668,
+    "outlet_gauge_pressure_pa": 0
+  },
+  "idealizations": {
+    "lid": "zero-thickness, no-slip, adiabatic wall",
+    "heat_source": "uniform flux over entire underside",
+    "inlet": "uniform axial velocity imposed on every channel mouth",
+    "outer_solid": "adiabatic except heated underside",
+    "gravity": "omitted in baseline",
+    "roughness": "smooth walls",
+    "viscous_heating": "off in baseline, explicit sensitivity only"
+  },
+  "unknown_partner_inputs": {
+    "headers": null,
+    "ports": null,
+    "seal_geometry": null,
+    "lid_material_and_bond": null,
+    "heat_map": null,
+    "chip_contact_footprint": null,
+    "interface_resistance": null,
+    "coolant_composition": null,
+    "operating_absolute_pressure": null,
+    "surface_roughness": null,
+    "tolerances": null,
+    "orientation": null
+  },
+  "analytical": {
+    "fluid_volume_m3": 6.912000000000002e-06,
+    "solid_volume_m3": 1.2088000000000004e-05,
+    "inlet_area_m2": 6.912e-05,
+    "heater_area_m2": 0.005000000000000001,
+    "interface_area_m2": 0.021120000000000003,
+    "roof_area_m2": 0.003840000000000001,
+    "outlet_c_no_viscous_heating": 39.39381526545674
+  },
+  "recorded_reduced_order": {
+    "peak_base_c": 41.437457733109454,
+    "outlet_c": 39.39382881271356,
+    "pressure_pa": 56.471157513730454,
+    "friction_pressure_pa": 55.89148167562222,
+    "minor_pressure_pa": 0.5796758381082343,
+    "thermal_resistance_k_w": 0.16437457733109453,
+    "reynolds": 29.9205320272736,
+    "hydraulic_w": 9.411859585621742e-05
+  },
+  "cfd_results": null
+}
