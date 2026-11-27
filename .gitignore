@@ -14,6 +14,5 @@ __pycache__/
 .vscode/
 .idea/
 
-# Regenerable CFD geometry and meshes
-.venv-cfd/
-build/cfd/
+# Browser review artifacts
+ui-review/
