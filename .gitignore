@@ -13,3 +13,6 @@ __pycache__/
 .DS_Store
 .vscode/
 .idea/
+
+# Browser review artifacts
+ui-review/

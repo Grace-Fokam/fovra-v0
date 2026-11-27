@@ -13,8 +13,8 @@ Can AI help design better computer parts? This is my first shot at finding out, 
 
 | Project | What it does | Not there yet |
 | --- | --- | --- |
-| **Cold plates** | A command-line tool that tries straight-channel layouts, materials, and flow rates in a simplified heat-and-flow model, comparing ML-guided and random search. | No CFD, real parts, or measurements. Doesn't check manufacturability or cost. [More](docs/cold-plate.md) |
-| **Data-center cooling** | A Streamlit dashboard comparing dry cooling and evaporative assist under the same load and weather. | Uses synthetic equipment data and weather. [More](docs/cooling-experiment.md) |
+| Cold plates (A command-line tool that tries straight-channel layouts, materials, and flow rates in a simplified heat-and-flow model, comparing ML-guided and random search. | No CFD, real parts, or measurements. Doesn't check manufacturability or cost. [More](docs/cold-plate.md))
+| Data-center cooling (Streamlit dashboard comparing dry cooling and evaporative assist under the same load and weather. | Uses synthetic equipment data and weather. [More](docs/cooling-experiment.md))
 
 ## Try it
 
@@ -29,7 +29,14 @@ python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-Then open `http://localhost:8501`. Play with climate, IT load, and cooling settings, or hit **Run AI comparison** to race ML against random search.
+Open `http://localhost:8501`:
+
+- Design studio: adjust width, depth, web, base, conductivity and total water flow. Compare the current design with the arbitrary reference, the recorded grid best and up to three pinned designs. All comparisons use the same operating case. Invalid geometry has no thermal or hydraulic outputs. Out-of-domain calculations are labeled diagnostics.
+- Recorded search: choose one of four operating cases, six seeds and a replay budget from 1–32 simulator evaluations. Inspect random versus surrogate-assisted search, all-seed outcomes, temperature/pressure tradeoffs and the full recorded runtimes. This reads committed results and never reruns or overwrites the benchmark. Geometry edits do not change recorded search results.
+- Model & evidence: inspect limitations, provenance and links to the equations and reproducibility checks.
+- Data-center cooling: adjust climate, IT load, cooler size and evaporative assist. **Run AI comparison** still tests learned screening against random search at the same simulation budget.
+
+The component view offers CSV comparisons and a JSON export containing the current design, case and simulator diagnostics. Pins last for the browser session. The fixed-flow case applies 0.2 L/min to all compared designs. See the [explorer walkthrough](docs/component-explorer.md).
 
 Tests and benchmarks:
 
@@ -42,10 +49,9 @@ python benchmark_cold_plate.py --output /tmp/fovra-cold-plate
 These write to temp folders, so the saved results don't change. To match my cold-plate numbers exactly, see the [reproducibility guide](docs/cold-plate-reproducibility.md). To put the dashboard online, see the [Streamlit guide](docs/deploy-streamlit.md).
 
 ## What I found
+Cold plates: ML-guided search beat random search in 16 of 24 matched tests, tied 6, and lost 2. But brute-forcing every design took 0.05 seconds versus 22.31 for ML, so ML wasn't faster here. The winners also lean on the thinnest walls and most conductive materials, which might be hard or pricey to build.
 
-**Cold plates:** ML-guided search beat random search in 16 of 24 matched tests, tied 6, and lost 2. But brute-forcing every design took 0.05 seconds versus 22.31 for ML, so ML wasn't faster here. The winners also lean on the thinnest walls and most conductive materials, which might be hard or pricey to build.
-
-**Data-center cooling:** Only 9 of 18 tests had any setup that met the limits. In those, ML and random search tied 7 times and each won once. No clear win for ML yet.
+Data-center cooling:Only 9 of 18 tests had any setup that met the limits. In those, ML and random search tied 7 times and each won once. No clear win for ML yet.
 
 Details live in the [cold-plate](docs/cold-plate.md) and [cooling](docs/cooling-experiment.md) docs and `results/`.
 

@@ -2,7 +2,7 @@
 
 This experiment searches the **dimensions of a straight-channel liquid cold plate** using an unvalidated reduced-order model. The goal is to pick candidates for higher-fidelity study. It doesn't discover new channel layouts or materials, establish patent novelty, or demonstrate hardware performance.
 
-It runs separately from the data-center cooling dashboard and its results.
+The Streamlit app opens an interactive **Component design** view for this experiment. The existing **Data-center cooling** dashboard remains a separate view with separate results. See the [explorer walkthrough](component-explorer.md). The command-line benchmark and recorded scientific outputs remain unchanged.
 
 ## Reproduce
 
@@ -170,6 +170,9 @@ The sensitivity check re-evaluates each grid winner with heat-transfer multiplie
 | File | Contents |
 | --- | --- |
 | `cold_plate.py` | Physics model and feasibility checks |
+| `cold_plate_view.py` | Streamlit design studio, recorded search replay and evidence view |
+| `cold_plate_explorer.py` | Read-only result loading, comparison and geometry presentation helpers |
+| `tests/test_cold_plate_view.py` | UI integration, exact simulator parity, recorded replay and failure states |
 | `cold_plate_search.py` | Equal-budget random and learned search |
 | `benchmark_cold_plate.py` | Cases, grid reference, traces, timing, sensitivity, provenance |
 | `tests/test_cold_plate.py` | Analytical limits, independent pressure solution, conservation, constraints, query counting, reproducibility |
