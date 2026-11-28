@@ -61,3 +61,6 @@ Details live in the [cold-plate](docs/cold-plate.md) and [cooling](docs/cooling-
 2. Check the top cold-plate designs with full CFD, picked ahead of time so there's no cherry-picking.
 3. Build a few real plates and measure temperature, flow, and pressure loss.
 4. Compare against standard optimizers once each simulation is slow enough to matter.
+
+Copyright © 2026 Fovra. All rights reserved.
+
